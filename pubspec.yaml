@@ -32,7 +32,7 @@ dependencies:
   http_parser: ^4.1.2
 
   # Local Storage & Security
-  flutter_secure_storage: ^9.2.4
+  flutter_secure_storage: 11.2.0
   shared_preferences: ^2.5.2
 
   # Rich Rendering & Media
@@ -42,10 +42,10 @@ dependencies:
   flutter_highlight: ^0.7.0
   flutter_svg: ^2.0.17
   fl_chart: ^0.70.2
-  youtube_player_flutter: ^9.1.1
+  youtube_player_flutter: 10.0.1
   webview_flutter: ^4.10.0
   url_launcher: ^6.3.1
-  file_picker: ^8.1.7
+  file_picker: 13.1.0
   intl: ^0.20.2
 
 dev_dependencies:
