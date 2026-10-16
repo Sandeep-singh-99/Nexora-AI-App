@@ -8,6 +8,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
 
   ConversationBloc(this._conversationRepository) : super(ConversationInitial()) {
     on<LoadConversations>(_onLoadConversations);
+    on<ResetToNewChat>(_onResetToNewChat);
     on<SelectConversation>(_onSelectConversation);
     on<CreateConversation>(_onCreateConversation);
     on<UpdateConversationDetails>(_onUpdateConversationDetails);
@@ -21,15 +22,38 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     LoadConversations event,
     Emitter<ConversationState> emit,
   ) async {
-    emit(ConversationLoading());
+    final currentSelectedId = state is ConversationLoaded
+        ? (state as ConversationLoaded).selectedConversationId
+        : null;
+
+    if (state is! ConversationLoaded) {
+      emit(ConversationLoading());
+    }
+
     try {
       final list = await _conversationRepository.getConversations();
+      final targetSelectedId = (currentSelectedId != null && list.any((c) => c.id == currentSelectedId))
+          ? currentSelectedId
+          : (list.isNotEmpty ? list.first.id : null);
+
       emit(ConversationLoaded(
         allConversations: list,
-        selectedConversationId: list.isNotEmpty ? list.first.id : null,
+        selectedConversationId: targetSelectedId,
       ));
     } catch (e) {
-      emit(ConversationError(e.toString()));
+      if (state is! ConversationLoaded) {
+        emit(ConversationError(e.toString()));
+      }
+    }
+  }
+
+  void _onResetToNewChat(
+    ResetToNewChat event,
+    Emitter<ConversationState> emit,
+  ) {
+    if (state is ConversationLoaded) {
+      final s = state as ConversationLoaded;
+      emit(s.copyWith(clearSelectedId: true));
     }
   }
 
@@ -57,7 +81,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
 
       if (state is ConversationLoaded) {
         final s = state as ConversationLoaded;
-        final updatedList = [newConv, ...s.allConversations];
+        final updatedList = [newConv, ...s.allConversations.where((c) => c.id != newConv.id)];
         emit(s.copyWith(
           allConversations: updatedList,
           selectedConversationId: newConv.id,
@@ -68,7 +92,9 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
           selectedConversationId: newConv.id,
         ));
       }
+      event.completer?.complete(newConv);
     } catch (e) {
+      event.completer?.completeError(e);
       emit(ConversationError(e.toString()));
     }
   }

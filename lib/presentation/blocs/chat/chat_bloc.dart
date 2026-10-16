@@ -15,6 +15,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   StreamSubscription<SseEvent>? _streamSubscription;
   CancelToken? _cancelToken;
+  bool _assistantMessagePersisted = false;
 
   ChatBloc({
     required ChatRepository chatRepository,
@@ -28,6 +29,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<RegenerateLastResponse>(_onRegenerateLastResponse);
     on<ToggleThinkingExpanded>(_onToggleThinkingExpanded);
     on<ClearChatError>(_onClearChatError);
+    on<ResetChat>(_onResetChat);
 
     // Stream event handlers
     on<StreamTokenReceived>(_onStreamTokenReceived);
@@ -47,7 +49,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(ChatLoading());
     try {
       final messages = await _conversationRepository.getMessages(event.conversationId);
-      emit(ChatLoaded(messages: messages));
+      // Deduplicate consecutive identical messages if present
+      final deduped = <MessageEntity>[];
+      for (final m in messages) {
+        if (deduped.isNotEmpty &&
+            deduped.last.role == m.role &&
+            deduped.last.content.trim() == m.content.trim()) {
+          continue;
+        }
+        deduped.add(m);
+      }
+      emit(ChatLoaded(messages: deduped));
     } catch (e) {
       emit(ChatError(e.toString()));
     }
@@ -94,10 +106,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       expandedThinkingMessageIds: expandedThinking,
     ));
 
+    // Save user message to backend DB asynchronously
+    final userPromptTokens = (event.content.length / 4).ceil().clamp(5, 999999);
+    unawaited(_conversationRepository.addMessage(
+      conversationId: event.conversationId,
+      content: event.content,
+      role: 'user',
+      metadata: {
+        'prompt_tokens': userPromptTokens,
+        'tokens_used': userPromptTokens,
+      },
+    ).catchError((_) => userMessage));
+
     // Cancel existing stream if any
     await _streamSubscription?.cancel();
     _cancelToken?.cancel();
     _cancelToken = CancelToken();
+    _assistantMessagePersisted = false;
 
     try {
       final stream = _chatRepository.streamChat(
@@ -143,13 +168,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         onError: (err) {
           if (err is DioException && CancelToken.isCancel(err)) {
             // Cancelled by user
-            add(const StreamEndReceived());
+            if (!_assistantMessagePersisted) {
+              add(const StreamEndReceived());
+            }
           } else {
             add(StreamErrorReceived('NETWORK_ERROR', err.toString()));
           }
         },
         onDone: () {
-          add(const StreamEndReceived());
+          if (!_assistantMessagePersisted) {
+            add(const StreamEndReceived());
+          }
         },
         cancelOnError: false,
       );
@@ -294,6 +323,25 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       clearActiveStatus: true,
     ));
 
+    // Persist assistant message to backend database strictly once per turn
+    if (!_assistantMessagePersisted && last.role == 'assistant' && last.content.isNotEmpty) {
+      _assistantMessagePersisted = true;
+      final completionTokens = (last.content.length / 4).ceil().clamp(5, 999999);
+      final metadata = {
+        'completion_tokens': completionTokens,
+        'tokens_used': completionTokens,
+        if (event.metadata != null) ...event.metadata!,
+      };
+      try {
+        await _conversationRepository.addMessage(
+          conversationId: event.conversationId ?? last.conversationId,
+          content: last.content,
+          role: 'assistant',
+          metadata: metadata,
+        );
+      } catch (_) {}
+    }
+
     // If first message in conversation, trigger automatic title generation
     if (updated.length == 2 && event.conversationId != null) {
       try {
@@ -306,6 +354,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
       } catch (_) {}
     }
+  }
+
+  Future<void> _onResetChat(
+    ResetChat event,
+    Emitter<ChatState> emit,
+  ) async {
+    _cancelToken?.cancel('Reset chat');
+    await _streamSubscription?.cancel();
+    emit(const ChatLoaded(messages: []));
   }
 
   void _onStreamErrorReceived(

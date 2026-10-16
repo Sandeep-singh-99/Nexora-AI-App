@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/haptic_utils.dart';
+import '../../../domain/entities/conversation_entity.dart';
 import '../../blocs/chat/chat_bloc.dart';
 import '../../blocs/chat/chat_event.dart';
 import '../../blocs/chat/chat_state.dart';
@@ -28,6 +30,8 @@ class _MainChatScreenState extends State<MainChatScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _showScrollToBottom = false;
+  bool _wasStreaming = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -64,25 +68,45 @@ class _MainChatScreenState extends State<MainChatScreen> {
     super.dispose();
   }
 
-  void _handleSendMessage(String text, String activeModel, String? conversationId) {
-    if (conversationId == null) {
-      // Create new conversation first
-      context.read<ConversationBloc>().add(
-            CreateConversation(
-              title: text.length > 30 ? '${text.substring(0, 30)}...' : text,
-              initialMessage: text,
-              model: activeModel,
-            ),
-          );
-    } else {
-      context.read<ChatBloc>().add(
-            SendMessage(
-              conversationId: conversationId,
-              content: text,
-              model: activeModel,
-            ),
-          );
-      Future.delayed(const Duration(milliseconds: 150), _scrollToBottom);
+  void _handleSendMessage(String text, String activeModel, String? conversationId) async {
+    if (_isSubmitting) return;
+    _isSubmitting = true;
+
+    try {
+      if (conversationId == null) {
+        // Draft mode: create new conversation on first prompt
+        final completer = Completer<ConversationEntity>();
+        context.read<ConversationBloc>().add(
+              CreateConversation(
+                title: 'New Chat',
+                initialMessage: text,
+                model: activeModel,
+                completer: completer,
+              ),
+            );
+        final newConv = await completer.future;
+        if (!mounted) return;
+        context.read<ChatBloc>().add(
+              SendMessage(
+                conversationId: newConv.id,
+                content: text,
+                model: activeModel,
+              ),
+            );
+        Future.delayed(const Duration(milliseconds: 150), _scrollToBottom);
+      } else {
+        context.read<ChatBloc>().add(
+              SendMessage(
+                conversationId: conversationId,
+                content: text,
+                model: activeModel,
+              ),
+            );
+        Future.delayed(const Duration(milliseconds: 150), _scrollToBottom);
+      }
+    } catch (_) {
+    } finally {
+      _isSubmitting = false;
     }
   }
 
@@ -92,8 +116,21 @@ class _MainChatScreenState extends State<MainChatScreen> {
 
     return BlocListener<ConversationBloc, ConversationState>(
       listener: (context, convState) {
-        if (convState is ConversationLoaded && convState.selectedConversationId != null) {
-          context.read<ChatBloc>().add(LoadMessages(convState.selectedConversationId!));
+        if (convState is ConversationLoaded) {
+          final selectedId = convState.selectedConversationId;
+          if (selectedId != null) {
+            final chatState = context.read<ChatBloc>().state;
+            final currentConvId = (chatState is ChatLoaded && chatState.messages.isNotEmpty)
+                ? chatState.messages.first.conversationId
+                : null;
+            // Only reload messages if switching to a different conversation
+            if (selectedId != currentConvId) {
+              context.read<ChatBloc>().add(LoadMessages(selectedId));
+            }
+          } else {
+            // New chat draft mode
+            context.read<ChatBloc>().add(ResetChat());
+          }
         }
       },
       child: BlocBuilder<SettingsBloc, SettingsState>(
@@ -113,12 +150,9 @@ class _MainChatScreenState extends State<MainChatScreen> {
                     context.read<ConversationBloc>().add(SelectConversation(id));
                   },
                   onNewChat: () {
-                    context.read<ConversationBloc>().add(
-                          CreateConversation(
-                            title: 'New Chat',
-                            model: activeModel,
-                          ),
-                        );
+                    HapticUtils.lightImpact();
+                    context.read<ConversationBloc>().add(ResetToNewChat());
+                    context.read<ChatBloc>().add(ResetChat());
                   },
                 ),
                 appBar: AppBar(
@@ -194,12 +228,8 @@ class _MainChatScreenState extends State<MainChatScreen> {
                       tooltip: 'New Conversation',
                       onPressed: () {
                         HapticUtils.lightImpact();
-                        context.read<ConversationBloc>().add(
-                              CreateConversation(
-                                title: 'New Chat',
-                                model: activeModel,
-                              ),
-                            );
+                        context.read<ConversationBloc>().add(ResetToNewChat());
+                        context.read<ChatBloc>().add(ResetChat());
                       },
                     ),
                   ],
@@ -209,7 +239,12 @@ class _MainChatScreenState extends State<MainChatScreen> {
                     if (chatState is ChatLoaded) {
                       if (chatState.isStreaming) {
                         _scrollToBottom();
+                      } else if (_wasStreaming) {
+                        // Generation just finished! Refresh conversations so sidebar shows new title and messages
+                        context.read<ConversationBloc>().add(LoadConversations());
                       }
+                      _wasStreaming = chatState.isStreaming;
+
                       if (chatState.errorMessage != null && !chatState.isQuotaExceeded) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

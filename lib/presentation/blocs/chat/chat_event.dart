@@ -116,3 +116,7 @@ class StreamErrorReceived extends ChatEvent {
   @override
   List<Object?> get props => [errorCode, errorMessage];
 }
+
+class ResetChat extends ChatEvent {
+  const ResetChat();
+}

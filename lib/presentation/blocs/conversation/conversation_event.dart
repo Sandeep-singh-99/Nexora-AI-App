@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:equatable/equatable.dart';
+import '../../../domain/entities/conversation_entity.dart';
 
 abstract class ConversationEvent extends Equatable {
   const ConversationEvent();
@@ -7,6 +9,8 @@ abstract class ConversationEvent extends Equatable {
 }
 
 class LoadConversations extends ConversationEvent {}
+
+class ResetToNewChat extends ConversationEvent {}
 
 class SelectConversation extends ConversationEvent {
   final String id;
@@ -20,16 +24,18 @@ class CreateConversation extends ConversationEvent {
   final String? initialMessage;
   final String model;
   final String? documentName;
+  final Completer<ConversationEntity>? completer;
 
   const CreateConversation({
     this.title = 'New Chat',
     this.initialMessage,
     required this.model,
     this.documentName,
+    this.completer,
   });
 
   @override
-  List<Object?> get props => [title, initialMessage, model, documentName];
+  List<Object?> get props => [title, initialMessage, model, documentName, completer];
 }
 
 class UpdateConversationDetails extends ConversationEvent {

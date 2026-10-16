@@ -25,4 +25,10 @@ abstract class ConversationRepository {
   Future<void> deleteConversation(String id);
   Future<void> bulkDeleteConversations();
   Future<List<MessageEntity>> getMessages(String conversationId, {int limit = 100});
+  Future<MessageEntity> addMessage({
+    required String conversationId,
+    required String content,
+    required String role,
+    Map<String, dynamic>? metadata,
+  });
 }

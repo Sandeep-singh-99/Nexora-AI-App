@@ -74,4 +74,19 @@ class ConversationRepositoryImpl implements ConversationRepository {
   Future<List<MessageEntity>> getMessages(String conversationId, {int limit = 100}) {
     return _remoteDataSource.getMessages(conversationId, limit: limit);
   }
+
+  @override
+  Future<MessageEntity> addMessage({
+    required String conversationId,
+    required String content,
+    required String role,
+    Map<String, dynamic>? metadata,
+  }) {
+    return _remoteDataSource.addMessage(
+      conversationId: conversationId,
+      content: content,
+      role: role,
+      metadata: metadata,
+    );
+  }
 }

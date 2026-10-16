@@ -68,11 +68,14 @@ class ConversationLoaded extends ConversationState {
   ConversationLoaded copyWith({
     List<ConversationEntity>? allConversations,
     String? selectedConversationId,
+    bool clearSelectedId = false,
     String? searchQuery,
   }) {
     return ConversationLoaded(
       allConversations: allConversations ?? this.allConversations,
-      selectedConversationId: selectedConversationId ?? this.selectedConversationId,
+      selectedConversationId: clearSelectedId
+          ? null
+          : (selectedConversationId ?? this.selectedConversationId),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }

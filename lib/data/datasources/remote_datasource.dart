@@ -189,6 +189,25 @@ class RemoteDataSource {
     throw ServerException('Failed to load messages', statusCode: response.statusCode);
   }
 
+  Future<MessageModel> addMessage({
+    required String conversationId,
+    required String content,
+    required String role,
+    Map<String, dynamic>? metadata,
+  }) async {
+    final response = await _dioClient.post(
+      '${ApiConstants.conversationMessages(conversationId)}?role=$role',
+      data: {
+        'content': content,
+        if (metadata != null) 'metadata': metadata,
+      },
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return MessageModel.fromJson(response.data as Map<String, dynamic>);
+    }
+    throw ServerException('Failed to add message', statusCode: response.statusCode);
+  }
+
   // CHAT STREAM
   Stream<SseEvent> streamChat({
     required String conversationId,
@@ -201,6 +220,7 @@ class RemoteDataSource {
       ApiConstants.chatStream,
       cancelToken: cancelToken,
       data: {
+        'thread_id': conversationId,
         'conversation_id': conversationId,
         'message': message,
         'model': model,
