@@ -124,8 +124,22 @@ class RemoteDataSource {
     throw ServerException('Failed to create conversation', statusCode: response.statusCode);
   }
 
-  Future<String> generateTitle(String conversationId) async {
-    final response = await _dioClient.post(ApiConstants.generateTitle(conversationId));
+  Future<String> generateTitle(
+    String conversationId, {
+    String? message,
+    String? assistantResponse,
+    String? documentName,
+  }) async {
+    final response = await _dioClient.post(
+      ApiConstants.generateTitle(conversationId),
+      data: {
+        'message': (message != null && message.trim().isNotEmpty) ? message.trim() : 'Conversation',
+        if (assistantResponse != null && assistantResponse.trim().isNotEmpty)
+          'assistant_response': assistantResponse.trim(),
+        if (documentName != null && documentName.trim().isNotEmpty)
+          'document_name': documentName.trim(),
+      },
+    );
     if (response.statusCode == 200) {
       return response.data['title'] as String? ?? 'Conversation';
     }

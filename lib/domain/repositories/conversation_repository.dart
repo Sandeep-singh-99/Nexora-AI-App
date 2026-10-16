@@ -9,7 +9,12 @@ abstract class ConversationRepository {
     required String model,
     String? documentName,
   });
-  Future<String> autoGenerateTitle(String conversationId);
+  Future<String> autoGenerateTitle(
+    String conversationId, {
+    String? message,
+    String? assistantResponse,
+    String? documentName,
+  });
   Future<ConversationEntity> updateConversation({
     required String id,
     String? title,

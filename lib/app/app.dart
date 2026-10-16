@@ -21,20 +21,29 @@ class NexoraApp extends StatefulWidget {
 }
 
 class _NexoraAppState extends State<NexoraApp> {
+  late final AuthBloc _authBloc;
   late final AppRouter _appRouter;
 
   @override
   void initState() {
     super.initState();
-    _appRouter = AppRouter(sl<SecureStorageService>());
+    _authBloc = sl<AuthBloc>()..add(AuthCheckRequested());
+    _appRouter = AppRouter(sl<SecureStorageService>(), _authBloc);
+  }
+
+  @override
+  void dispose() {
+    _appRouter.dispose();
+    _authBloc.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthBloc>(
-          create: (_) => sl<AuthBloc>()..add(AuthCheckRequested()),
+        BlocProvider<AuthBloc>.value(
+          value: _authBloc,
         ),
         BlocProvider<ConversationBloc>(
           create: (_) => sl<ConversationBloc>(),

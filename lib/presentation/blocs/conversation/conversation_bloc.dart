@@ -143,7 +143,12 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     if (state is ConversationLoaded) {
       final s = state as ConversationLoaded;
       try {
-        final newTitle = await _conversationRepository.autoGenerateTitle(event.conversationId);
+        final newTitle = await _conversationRepository.autoGenerateTitle(
+          event.conversationId,
+          message: event.message,
+          assistantResponse: event.assistantResponse,
+          documentName: event.documentName,
+        );
         final list = s.allConversations.map((c) {
           if (c.id == event.conversationId) {
             return c.copyWith(title: newTitle);

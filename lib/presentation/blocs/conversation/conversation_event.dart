@@ -69,7 +69,17 @@ class SearchConversations extends ConversationEvent {
 
 class AutoGenerateTitleEvent extends ConversationEvent {
   final String conversationId;
-  const AutoGenerateTitleEvent(this.conversationId);
+  final String? message;
+  final String? assistantResponse;
+  final String? documentName;
+
+  const AutoGenerateTitleEvent(
+    this.conversationId, {
+    this.message,
+    this.assistantResponse,
+    this.documentName,
+  });
+
   @override
-  List<Object?> get props => [conversationId];
+  List<Object?> get props => [conversationId, message, assistantResponse, documentName];
 }

@@ -297,7 +297,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     // If first message in conversation, trigger automatic title generation
     if (updated.length == 2 && event.conversationId != null) {
       try {
-        await _conversationRepository.autoGenerateTitle(event.conversationId!);
+        final userMsg = updated[0].content;
+        final asstResp = updated[1].content;
+        await _conversationRepository.autoGenerateTitle(
+          event.conversationId!,
+          message: userMsg,
+          assistantResponse: asstResp,
+        );
       } catch (_) {}
     }
   }

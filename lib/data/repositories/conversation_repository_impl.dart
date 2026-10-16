@@ -29,8 +29,18 @@ class ConversationRepositoryImpl implements ConversationRepository {
   }
 
   @override
-  Future<String> autoGenerateTitle(String conversationId) {
-    return _remoteDataSource.generateTitle(conversationId);
+  Future<String> autoGenerateTitle(
+    String conversationId, {
+    String? message,
+    String? assistantResponse,
+    String? documentName,
+  }) {
+    return _remoteDataSource.generateTitle(
+      conversationId,
+      message: message,
+      assistantResponse: assistantResponse,
+      documentName: documentName,
+    );
   }
 
   @override
