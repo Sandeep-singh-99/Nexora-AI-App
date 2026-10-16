@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:flutter_highlight/themes/atom-one-light.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:nexora_ai_app/app/theme/color_palette.dart';
+import 'package:nexora_ai_app/app/theme/app_colors.dart';
 import 'package:nexora_ai_app/core/utils/haptic_utils.dart';
 import 'package:nexora_ai_app/domain/entities/message_entity.dart';
 import 'package:nexora_ai_app/presentation/blocs/artifacts/artifact_bloc.dart';
@@ -45,20 +46,22 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
     }
   }
 
-  void _copyContent() {
+  void _copyContent(AppColors colors) {
     HapticUtils.heavyImpact();
     Clipboard.setData(ClipboardData(text: widget.artifact.content));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Artifact source copied to clipboard!'),
-        backgroundColor: ColorPalette.emeraldAccent,
-        duration: Duration(seconds: 1),
+      SnackBar(
+        content: const Text('Artifact source copied to clipboard!'),
+        backgroundColor: colors.cardHover,
+        duration: const Duration(seconds: 1),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return BlocBuilder<ArtifactBloc, ArtifactState>(
       builder: (context, state) {
         if (state is! ArtifactOpen) return const SizedBox.shrink();
@@ -79,10 +82,10 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
 
         return Container(
           height: MediaQuery.of(context).size.height * 0.9,
-          decoration: const BoxDecoration(
-            color: ColorPalette.elevatedSurface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            border: Border(top: BorderSide(color: ColorPalette.subtleBorder)),
+          decoration: BoxDecoration(
+            color: colors.card,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border(top: BorderSide(color: colors.border)),
           ),
           child: Column(
             children: [
@@ -92,7 +95,7 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: ColorPalette.subtleBorder,
+                  color: colors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -105,10 +108,11 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: ColorPalette.indigoAccent.withValues(alpha: 0.15),
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: colors.border),
                       ),
-                      child: const Icon(Icons.code, size: 18, color: ColorPalette.indigoAccent),
+                      child: Icon(Icons.code, size: 18, color: colors.textPrimary),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -117,26 +121,26 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                         children: [
                           Text(
                             widget.artifact.title,
-                            style: const TextStyle(
-                              color: ColorPalette.textPrimary,
+                            style: TextStyle(
+                              color: colors.textPrimary,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             widget.artifact.language.toUpperCase(),
-                            style: const TextStyle(color: ColorPalette.textMuted, fontSize: 11),
+                            style: TextStyle(color: colors.textMuted, fontSize: 11),
                           ),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.copy, size: 18, color: ColorPalette.textSecondary),
+                      icon: Icon(Icons.copy, size: 18, color: colors.textSecondary),
                       tooltip: 'Copy Code',
-                      onPressed: _copyContent,
+                      onPressed: () => _copyContent(colors),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, size: 20, color: ColorPalette.textMuted),
+                      icon: Icon(Icons.close, size: 20, color: colors.textMuted),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -146,7 +150,7 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
               // Mode Tabs & Viewport Selector Bar
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                color: ColorPalette.obsidianBackground,
+                color: colors.surface,
                 child: Row(
                   children: [
                     // Preview / Code toggle
@@ -165,10 +169,10 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                       ],
                       selected: {activeTab},
                       style: SegmentedButton.styleFrom(
-                        selectedBackgroundColor: ColorPalette.indigoAccent,
-                        selectedForegroundColor: Colors.white,
-                        foregroundColor: ColorPalette.textSecondary,
-                        backgroundColor: ColorPalette.elevatedSurface,
+                        selectedBackgroundColor: colors.primary,
+                        selectedForegroundColor: colors.onPrimary,
+                        foregroundColor: colors.textSecondary,
+                        backgroundColor: colors.card,
                       ),
                       onSelectionChanged: (val) {
                         HapticUtils.selectionClick();
@@ -185,8 +189,8 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                           Icons.smartphone,
                           size: 18,
                           color: viewport == ArtifactViewport.mobile
-                              ? ColorPalette.indigoAccent
-                              : ColorPalette.textMuted,
+                              ? colors.primary
+                              : colors.textMuted,
                         ),
                         tooltip: 'Mobile Viewport',
                         onPressed: () {
@@ -201,8 +205,8 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                           Icons.aspect_ratio,
                           size: 18,
                           color: viewport == ArtifactViewport.responsive
-                              ? ColorPalette.indigoAccent
-                              : ColorPalette.textMuted,
+                              ? colors.primary
+                              : colors.textMuted,
                         ),
                         tooltip: 'Responsive Viewport',
                         onPressed: () {
@@ -217,8 +221,8 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                           Icons.desktop_windows,
                           size: 18,
                           color: viewport == ArtifactViewport.desktop
-                              ? ColorPalette.indigoAccent
-                              : ColorPalette.textMuted,
+                              ? colors.primary
+                              : colors.textMuted,
                         ),
                         tooltip: 'Desktop Viewport',
                         onPressed: () {
@@ -233,13 +237,13 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
                 ),
               ),
 
-              const Divider(height: 1, color: ColorPalette.subtleBorder),
+              Divider(height: 1, color: colors.border),
 
               // Main Canvas
               Expanded(
                 child: activeTab == ArtifactTab.code
-                    ? _buildCodeView()
-                    : _buildPreview(getViewportWidth()),
+                    ? _buildCodeView(colors)
+                    : _buildPreview(getViewportWidth(), colors),
               ),
             ],
           ),
@@ -248,15 +252,15 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
     );
   }
 
-  Widget _buildCodeView() {
+  Widget _buildCodeView(AppColors colors) {
     return Container(
-      color: ColorPalette.obsidianBackground,
+      color: colors.background,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: HighlightView(
           widget.artifact.content,
           language: widget.artifact.language,
-          theme: atomOneDarkTheme,
+          theme: colors.isDark ? atomOneDarkTheme : atomOneLightTheme,
           textStyle: const TextStyle(
             fontFamily: 'monospace',
             fontSize: 13,
@@ -267,7 +271,7 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
     );
   }
 
-  Widget _buildPreview(double targetWidth) {
+  Widget _buildPreview(double targetWidth, AppColors colors) {
     Widget content;
 
     if (widget.artifact.language == 'svg') {
@@ -285,16 +289,16 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.code, size: 48, color: ColorPalette.textMuted),
+            Icon(Icons.code, size: 48, color: colors.textMuted),
             const SizedBox(height: 12),
             Text(
               '${widget.artifact.language.toUpperCase()} file preview',
-              style: const TextStyle(color: ColorPalette.textSecondary, fontSize: 14),
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Switch to Code tab to view complete implementation',
-              style: TextStyle(color: ColorPalette.textMuted, fontSize: 12),
+              style: TextStyle(color: colors.textMuted, fontSize: 12),
             ),
           ],
         ),
@@ -302,13 +306,13 @@ class _ArtifactViewerModalState extends State<ArtifactViewerModal> {
     }
 
     return Container(
-      color: ColorPalette.obsidianBackground,
+      color: colors.background,
       child: Center(
         child: Container(
           width: targetWidth,
           decoration: BoxDecoration(
             border: targetWidth != double.infinity
-                ? Border.symmetric(vertical: const BorderSide(color: ColorPalette.subtleBorder, width: 2))
+                ? Border.symmetric(vertical: BorderSide(color: colors.border, width: 2))
                 : null,
           ),
           child: content,

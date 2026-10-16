@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/haptic_utils.dart';
 import '../../../../core/utils/link_utils.dart';
 
@@ -15,26 +15,28 @@ class SearchResultsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              const Icon(Icons.search, size: 18, color: ColorPalette.cyanAccent),
+              Icon(Icons.search, size: 18, color: colors.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Web Search: "$query"',
-                  style: const TextStyle(
-                    color: ColorPalette.textPrimary,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -64,8 +66,8 @@ class SearchResultsCard extends StatelessWidget {
                   children: [
                     Text(
                       host,
-                      style: const TextStyle(
-                        color: ColorPalette.cyanAccent,
+                      style: TextStyle(
+                        color: colors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -73,8 +75,8 @@ class SearchResultsCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -83,8 +85,8 @@ class SearchResultsCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         snippet,
-                        style: const TextStyle(
-                          color: ColorPalette.textSecondary,
+                        style: TextStyle(
+                          color: colors.textSecondary,
                           fontSize: 12,
                           height: 1.35,
                         ),

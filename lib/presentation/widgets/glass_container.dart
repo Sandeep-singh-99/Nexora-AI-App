@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../app/theme/color_palette.dart';
+import '../../app/theme/app_colors.dart';
 
+/// Clean solid container replacing former glassmorphic blurred styling
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -19,31 +19,24 @@ class GlassContainer extends StatelessWidget {
     this.borderRadius = 16,
     this.backgroundColor,
     this.borderColor,
-    this.blur = 10,
+    this.blur = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
       margin: margin,
+      padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
+        color: backgroundColor ?? colors.card,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: borderColor ?? ColorPalette.glassBorder,
+          color: borderColor ?? colors.border,
           width: 1,
         ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: Container(
-            padding: padding ?? const EdgeInsets.all(16),
-            color: backgroundColor ?? ColorPalette.glassBackground,
-            child: child,
-          ),
-        ),
-      ),
+      child: child,
     );
   }
 }

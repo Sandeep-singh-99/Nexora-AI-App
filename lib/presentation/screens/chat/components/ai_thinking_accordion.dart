@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/date_helpers.dart';
 import '../../../../core/utils/haptic_utils.dart';
 
@@ -25,6 +25,7 @@ class AiThinkingAccordion extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final colors = context.colors;
     final durationText = elapsedSeconds != null && elapsedSeconds! > 0
         ? ' (${DateHelpers.formatSecondsToMinutes(elapsedSeconds!)})'
         : '';
@@ -32,9 +33,9 @@ class AiThinkingAccordion extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface.withValues(alpha: 0.8),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,21 +54,22 @@ class AiThinkingAccordion extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: ColorPalette.violetAccent.withValues(alpha: 0.15),
+                      color: colors.cardHover,
                       borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: colors.border),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.psychology_outlined,
                       size: 16,
-                      color: ColorPalette.violetAccent,
+                      color: colors.textSecondary,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'AI Thought Process$durationText',
-                      style: const TextStyle(
-                        color: ColorPalette.textSecondary,
+                      style: TextStyle(
+                        color: colors.textSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -76,10 +78,10 @@ class AiThinkingAccordion extends StatelessWidget {
                   AnimatedRotation(
                     turns: isExpanded ? 0.5 : 0.0,
                     duration: const Duration(milliseconds: 200),
-                    child: const Icon(
+                    child: Icon(
                       Icons.keyboard_arrow_down,
                       size: 18,
-                      color: ColorPalette.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
                 ],
@@ -89,7 +91,7 @@ class AiThinkingAccordion extends StatelessWidget {
 
           // Collapsible body
           if (isExpanded) ...[
-            const Divider(height: 1, color: ColorPalette.subtleBorder),
+            Divider(height: 1, color: colors.border),
             Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
@@ -104,19 +106,19 @@ class AiThinkingAccordion extends StatelessWidget {
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: ColorPalette.elevatedCardHover,
+                            color: colors.card,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: ColorPalette.lighterBorder),
+                            border: Border.all(color: colors.border),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.check_circle, size: 12, color: ColorPalette.emeraldAccent),
+                              Icon(Icons.check_circle, size: 12, color: colors.success),
                               const SizedBox(width: 4),
                               Text(
                                 step,
-                                style: const TextStyle(
-                                  color: ColorPalette.textSecondary,
+                                style: TextStyle(
+                                  color: colors.textSecondary,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -132,8 +134,8 @@ class AiThinkingAccordion extends StatelessWidget {
                   // Thought markdown / plain text
                   Text(
                     thought,
-                    style: const TextStyle(
-                      color: ColorPalette.textSecondary,
+                    style: TextStyle(
+                      color: colors.textSecondary,
                       fontSize: 12,
                       fontFamily: 'monospace',
                       height: 1.45,

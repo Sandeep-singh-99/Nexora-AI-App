@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/auth/auth_event.dart';
 import '../../blocs/auth/auth_state.dart';
@@ -26,11 +26,13 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Dialog(
-      backgroundColor: ColorPalette.elevatedSurface,
+      backgroundColor: colors.card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: ColorPalette.subtleBorder),
+        side: BorderSide(color: colors.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -39,9 +41,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
             if (state is PasswordResetEmailSent) {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Password reset instructions sent to your email.'),
-                  backgroundColor: ColorPalette.success,
+                SnackBar(
+                  content: const Text('Password reset instructions sent to your email.'),
+                  backgroundColor: colors.success,
                 ),
               );
             }
@@ -58,31 +60,31 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Reset Password',
                         style: TextStyle(
-                          color: ColorPalette.textPrimary,
+                          color: colors.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: ColorPalette.textMuted, size: 20),
+                        icon: Icon(Icons.close, color: colors.textMuted, size: 20),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Enter your registered email address to receive password reset instructions.',
-                    style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13),
+                    style: TextStyle(color: colors.textSecondary, fontSize: 13),
                   ),
                   const SizedBox(height: 20),
                   AppTextField(
                     controller: _emailController,
                     hintText: 'name@example.com',
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: const Icon(Icons.email_outlined, size: 20, color: ColorPalette.textMuted),
+                    prefixIcon: Icon(Icons.email_outlined, size: 20, color: colors.textMuted),
                     validator: (val) {
                       if (val == null || val.trim().isEmpty) return 'Enter email';
                       if (!val.contains('@')) return 'Invalid email';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/network/sse_stream_reader.dart';
 import '../../../../core/utils/haptic_utils.dart';
 import '../../../../core/utils/link_utils.dart';
@@ -13,18 +13,20 @@ class SearchCitationsView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (citations.isEmpty) return const SizedBox.shrink();
 
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.travel_explore, size: 14, color: ColorPalette.cyanAccent),
+            Icon(Icons.travel_explore, size: 14, color: colors.textSecondary),
             const SizedBox(width: 6),
             Text(
               'Sources (${citations.length})',
-              style: const TextStyle(
-                color: ColorPalette.cyanAccent,
+              style: TextStyle(
+                color: colors.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -52,9 +54,9 @@ class SearchCitationsView extends StatelessWidget {
                   width: 180,
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: ColorPalette.elevatedSurface,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: ColorPalette.subtleBorder),
+                    border: Border.all(color: colors.border),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,20 +67,20 @@ class SearchCitationsView extends StatelessWidget {
                           Container(
                             width: 14,
                             height: 14,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: ColorPalette.cyanAccent,
+                              color: colors.cardHover,
                             ),
-                            child: const Center(
-                              child: Icon(Icons.public, size: 10, color: Colors.black),
+                            child: Center(
+                              child: Icon(Icons.public, size: 10, color: colors.textSecondary),
                             ),
                           ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               host,
-                              style: const TextStyle(
-                                color: ColorPalette.textMuted,
+                              style: TextStyle(
+                                color: colors.textMuted,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -91,8 +93,8 @@ class SearchCitationsView extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         item.title,
-                        style: const TextStyle(
-                          color: ColorPalette.textPrimary,
+                        style: TextStyle(
+                          color: colors.textPrimary,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                         ),

@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/haptic_utils.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/auth/auth_event.dart';
@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
-  void _saveByok() {
+  void _saveByok(AppColors colors) {
     HapticUtils.heavyImpact();
     context.read<SettingsBloc>().add(
           SaveByokSettingsEvent(
@@ -62,30 +62,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('BYOK Keys saved securely! Headers will be attached to AI requests.'),
-        backgroundColor: ColorPalette.emeraldAccent,
+      SnackBar(
+        content: const Text('BYOK Keys saved securely! Headers will be attached to AI requests.'),
+        backgroundColor: colors.success,
       ),
     );
   }
 
-  void _clearByok() {
+  void _clearByok(AppColors colors) {
     HapticUtils.mediumImpact();
     _keyController.clear();
     context.read<SettingsBloc>().add(ClearByokSettingsEvent());
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('BYOK Keys removed. Reverting to prebuilt cloud inferences.'),
+      SnackBar(
+        content: const Text('BYOK Keys removed. Reverting to prebuilt cloud inferences.'),
+        backgroundColor: colors.cardHover,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: ColorPalette.obsidianBackground,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        title: const Text('Settings & BYOK'),
+        backgroundColor: colors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'Settings & Appearance',
+          style: TextStyle(color: colors.textPrimary),
+        ),
+        iconTheme: IconThemeData(color: colors.textPrimary),
       ),
       body: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
@@ -94,49 +104,123 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // BYOK (Bring Your Own Key) Section
-              _buildSectionHeader('BRING YOUR OWN KEY (BYOK)'),
+              // Appearance & Theme Section
+              _buildSectionHeader('APPEARANCE & THEME', colors),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: ColorPalette.elevatedSurface,
+                  color: colors.card,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: ColorPalette.subtleBorder),
+                  border: Border.all(color: colors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Multi-Provider Custom Inference',
+                    Text(
+                      'Theme Mode',
                       style: TextStyle(
-                        color: ColorPalette.textPrimary,
+                        color: colors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
+                      'Solid, clean, high-contrast monochrome design with zero gradients.',
+                      style: TextStyle(color: colors.textSecondary, fontSize: 12),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildThemeOption(
+                            context,
+                            colors,
+                            title: 'Light',
+                            icon: Icons.light_mode_outlined,
+                            isSelected: state.themeMode == ThemeMode.light,
+                            onTap: () {
+                              context.read<SettingsBloc>().add(const UpdateThemeModeEvent(ThemeMode.light));
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildThemeOption(
+                            context,
+                            colors,
+                            title: 'Dark',
+                            icon: Icons.dark_mode_outlined,
+                            isSelected: state.themeMode == ThemeMode.dark,
+                            onTap: () {
+                              context.read<SettingsBloc>().add(const UpdateThemeModeEvent(ThemeMode.dark));
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildThemeOption(
+                            context,
+                            colors,
+                            title: 'System',
+                            icon: Icons.brightness_auto_outlined,
+                            isSelected: state.themeMode == ThemeMode.system,
+                            onTap: () {
+                              context.read<SettingsBloc>().add(const UpdateThemeModeEvent(ThemeMode.system));
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // BYOK (Bring Your Own Key) Section
+              _buildSectionHeader('BRING YOUR OWN KEY (BYOK)', colors),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colors.card,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: colors.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Multi-Provider Custom Inference',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
                       'Store keys encrypted in secure hardware storage. Bypasses shared cloud quotas.',
-                      style: TextStyle(color: ColorPalette.textSecondary, fontSize: 12),
+                      style: TextStyle(color: colors.textSecondary, fontSize: 12),
                     ),
                     const SizedBox(height: 16),
 
                     // Provider Dropdown
-                    const Text('LLM Provider', style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13)),
+                    Text('LLM Provider', style: TextStyle(color: colors.textSecondary, fontSize: 13)),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: ColorPalette.obsidianBackground,
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: ColorPalette.subtleBorder),
+                        border: Border.all(color: colors.border),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedProvider,
                           isExpanded: true,
-                          dropdownColor: ColorPalette.elevatedSurface,
-                          style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 14),
+                          dropdownColor: colors.card,
+                          style: TextStyle(color: colors.textPrimary, fontSize: 14),
                           items: _providers.map((p) {
                             return DropdownMenuItem(
                               value: p['name'],
@@ -162,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       labelText: 'API Secret Key',
                       hintText: 'sk-...',
                       obscureText: true,
-                      prefixIcon: const Icon(Icons.key, size: 18, color: ColorPalette.textMuted),
+                      prefixIcon: Icon(Icons.key, size: 18, color: colors.textMuted),
                     ),
                     const SizedBox(height: 14),
 
@@ -180,7 +264,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: AppButton(
                               text: 'Remove BYOK',
                               variant: ButtonVariant.danger,
-                              onPressed: _clearByok,
+                              onPressed: () => _clearByok(colors),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -188,8 +272,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Expanded(
                           child: AppButton(
                             text: 'Save BYOK',
-                            icon: const Icon(Icons.lock_outline, size: 16, color: Colors.white),
-                            onPressed: _saveByok,
+                            icon: Icon(Icons.lock_outline, size: 16, color: colors.onPrimary),
+                            onPressed: () => _saveByok(colors),
                           ),
                         ),
                       ],
@@ -201,13 +285,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 24),
 
               // Usage Analytics Section
-              _buildSectionHeader('USAGE & TOKEN ANALYTICS'),
+              _buildSectionHeader('USAGE & TOKEN ANALYTICS', colors),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: ColorPalette.elevatedSurface,
+                  color: colors.card,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: ColorPalette.subtleBorder),
+                  border: Border.all(color: colors.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,10 +299,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Weekly Token Consumption',
                           style: TextStyle(
-                            color: ColorPalette.textPrimary,
+                            color: colors.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -226,13 +310,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: ColorPalette.indigoAccent.withValues(alpha: 0.15),
+                            color: colors.surface,
                             borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: colors.border),
                           ),
                           child: Text(
                             '${analytics?.totalTokensUsed ?? 0} tokens',
-                            style: const TextStyle(
-                              color: ColorPalette.indigoAccent,
+                            style: TextStyle(
+                              color: colors.textPrimary,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -242,19 +327,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Chart
+                    // Chart - Clean monochromatic bars, no gradients
                     SizedBox(
                       height: 160,
                       child: BarChart(
                         BarChartData(
                           barGroups: [
-                            BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 1200, color: ColorPalette.indigoAccent, width: 12)]),
-                            BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 2800, color: ColorPalette.indigoAccent, width: 12)]),
-                            BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 1900, color: ColorPalette.indigoAccent, width: 12)]),
-                            BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 4200, color: ColorPalette.indigoAccent, width: 12)]),
-                            BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 3100, color: ColorPalette.indigoAccent, width: 12)]),
-                            BarChartGroupData(x: 5, barRods: [BarChartRodData(toY: 5600, color: ColorPalette.indigoAccent, width: 12)]),
-                            BarChartGroupData(x: 6, barRods: [BarChartRodData(toY: 3800, color: ColorPalette.indigoAccent, width: 12)]),
+                            BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 1200, color: colors.primary, width: 12, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))]),
+                            BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 2800, color: colors.primary, width: 12, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))]),
+                            BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 1900, color: colors.primary, width: 12, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))]),
+                            BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 4200, color: colors.primary, width: 12, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))]),
+                            BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 3100, color: colors.primary, width: 12, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))]),
+                            BarChartGroupData(x: 5, barRods: [BarChartRodData(toY: 5600, color: colors.primary, width: 12, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))]),
+                            BarChartGroupData(x: 6, barRods: [BarChartRodData(toY: 3800, color: colors.primary, width: 12, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))]),
                           ],
                           titlesData: FlTitlesData(
                             bottomTitles: AxisTitles(
@@ -266,7 +351,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   if (i >= 0 && i < days.length) {
                                     return Padding(
                                       padding: const EdgeInsets.only(top: 6),
-                                      child: Text(days[i], style: const TextStyle(color: ColorPalette.textMuted, fontSize: 10)),
+                                      child: Text(days[i], style: TextStyle(color: colors.textMuted, fontSize: 10)),
                                     );
                                   }
                                   return const SizedBox.shrink();
@@ -289,13 +374,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 24),
 
               // Network & Environment
-              _buildSectionHeader('API ENVIRONMENT'),
+              _buildSectionHeader('API ENVIRONMENT', colors),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: ColorPalette.elevatedSurface,
+                  color: colors.card,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: ColorPalette.subtleBorder),
+                  border: Border.all(color: colors.border),
                 ),
                 child: Column(
                   children: [
@@ -304,7 +389,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       labelText: 'FastAPI Backend URL',
                       hintText: 'http://10.0.2.2:8000/api/v1',
                       suffixIcon: IconButton(
-                        icon: const Icon(Icons.check, color: ColorPalette.emeraldAccent),
+                        icon: Icon(Icons.check, color: colors.success),
                         onPressed: () {
                           context.read<SettingsBloc>().add(
                                 UpdateBaseUrlEvent(_baseUrlController.text.trim()),
@@ -335,13 +420,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildThemeOption(
+    BuildContext context,
+    AppColors colors, {
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () {
+        HapticUtils.selectionClick();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? colors.primary : colors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? colors.primary : colors.border,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? colors.onPrimary : colors.textSecondary,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? colors.onPrimary : colors.textPrimary,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, AppColors colors) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 0, 8),
       child: Text(
         title,
-        style: const TextStyle(
-          color: ColorPalette.textMuted,
+        style: TextStyle(
+          color: colors.textMuted,
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/haptic_utils.dart';
 
 class ChatInputBar extends StatefulWidget {
@@ -73,6 +73,8 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       padding: EdgeInsets.fromLTRB(
         12,
@@ -80,35 +82,35 @@ class _ChatInputBarState extends State<ChatInputBar> {
         12,
         8 + MediaQuery.of(context).viewInsets.bottom / 4,
       ),
-      decoration: const BoxDecoration(
-        color: ColorPalette.obsidianBackground,
-        border: Border(top: BorderSide(color: ColorPalette.subtleBorder)),
+      decoration: BoxDecoration(
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: SafeArea(
         top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Top mini bar: Model selector dropdown + Clear button
+            // Top mini bar: Model selector dropdown
             Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                   decoration: BoxDecoration(
-                    color: ColorPalette.elevatedSurface,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: ColorPalette.subtleBorder),
+                    border: Border.all(color: colors.border),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _models.any((m) => m['id'] == widget.activeModel)
                           ? widget.activeModel
                           : 'gemini-2.0-flash',
-                      dropdownColor: ColorPalette.elevatedSurface,
-                      icon: const Icon(Icons.arrow_drop_down, color: ColorPalette.textMuted, size: 18),
+                      dropdownColor: colors.card,
+                      icon: Icon(Icons.arrow_drop_down, color: colors.textMuted, size: 18),
                       isDense: true,
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -127,15 +129,16 @@ class _ChatInputBarState extends State<ChatInputBar> {
                               Text(m['name']!),
                               const SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                                 decoration: BoxDecoration(
-                                  color: ColorPalette.indigoAccent.withValues(alpha: 0.2),
+                                  color: colors.cardHover,
                                   borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: colors.border),
                                 ),
                                 child: Text(
                                   m['badge']!,
-                                  style: const TextStyle(
-                                    color: ColorPalette.indigoAccent,
+                                  style: TextStyle(
+                                    color: colors.textSecondary,
                                     fontSize: 9,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -158,7 +161,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
               children: [
                 // Attachments button
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline, color: ColorPalette.textSecondary),
+                  icon: Icon(Icons.add_circle_outline, color: colors.textSecondary),
                   tooltip: 'Attach Document',
                   onPressed: () {
                     HapticUtils.lightImpact();
@@ -171,22 +174,22 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: ColorPalette.elevatedSurface,
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: ColorPalette.subtleBorder),
+                      border: Border.all(color: colors.border),
                     ),
                     child: TextField(
                       controller: widget.controller,
                       maxLines: 5,
                       minLines: 1,
-                      style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 14),
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: colors.textPrimary, fontSize: 14),
+                      decoration: InputDecoration(
                         hintText: 'Message Nexora AI...',
-                        hintStyle: TextStyle(color: ColorPalette.textMuted, fontSize: 14),
+                        hintStyle: TextStyle(color: colors.textMuted, fontSize: 14),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                       onSubmitted: (_) => _handleSend(),
                     ),
@@ -194,7 +197,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 ),
                 const SizedBox(width: 8),
 
-                // Send or Stop button
+                // Send or Stop button - Solid circle, no shadows, no gradients
                 GestureDetector(
                   onTap: _handleSend,
                   child: AnimatedContainer(
@@ -203,24 +206,16 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     height: 42,
                     decoration: BoxDecoration(
                       color: widget.isStreaming
-                          ? ColorPalette.error
-                          : (_hasText ? ColorPalette.indigoAccent : ColorPalette.elevatedCardHover),
+                          ? colors.error
+                          : (_hasText ? colors.primary : colors.cardHover),
                       shape: BoxShape.circle,
-                      boxShadow: (_hasText || widget.isStreaming)
-                          ? [
-                              BoxShadow(
-                                color: (widget.isStreaming ? ColorPalette.error : ColorPalette.indigoAccent)
-                                    .withValues(alpha: 0.35),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              )
-                            ]
-                          : null,
                     ),
                     child: Center(
                       child: Icon(
                         widget.isStreaming ? Icons.stop_rounded : Icons.arrow_upward_rounded,
-                        color: Colors.white,
+                        color: widget.isStreaming
+                            ? Colors.white
+                            : (_hasText ? colors.onPrimary : colors.textMuted),
                         size: 20,
                       ),
                     ),

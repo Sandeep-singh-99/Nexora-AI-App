@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 
 class TimeCard extends StatefulWidget {
   final String location;
@@ -45,6 +45,7 @@ class _TimeCardState extends State<TimeCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final timeFormatted = DateFormat('hh:mm:ss a').format(_now);
     final dateFormatted = DateFormat('EEEE, MMMM d, yyyy').format(_now);
 
@@ -52,9 +53,9 @@ class _TimeCardState extends State<TimeCard> {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         children: [
@@ -62,8 +63,9 @@ class _TimeCardState extends State<TimeCard> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: ColorPalette.amberAccent.withValues(alpha: 0.15),
+              color: colors.surface,
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colors.border),
             ),
             child: Center(
               child: Text(
@@ -82,8 +84,8 @@ class _TimeCardState extends State<TimeCard> {
                   children: [
                     Text(
                       widget.location,
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -92,14 +94,14 @@ class _TimeCardState extends State<TimeCard> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: ColorPalette.elevatedCardHover,
+                          color: colors.surface,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: ColorPalette.subtleBorder),
+                          border: Border.all(color: colors.border),
                         ),
                         child: Text(
                           widget.utcOffset!,
-                          style: const TextStyle(
-                            color: ColorPalette.amberAccent,
+                          style: TextStyle(
+                            color: colors.textSecondary,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
@@ -110,8 +112,8 @@ class _TimeCardState extends State<TimeCard> {
                 const SizedBox(height: 4),
                 Text(
                   timeFormatted,
-                  style: const TextStyle(
-                    color: ColorPalette.textPrimary,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'monospace',
@@ -119,8 +121,8 @@ class _TimeCardState extends State<TimeCard> {
                 ),
                 Text(
                   dateFormatted,
-                  style: const TextStyle(
-                    color: ColorPalette.textMuted,
+                  style: TextStyle(
+                    color: colors.textMuted,
                     fontSize: 12,
                   ),
                 ),

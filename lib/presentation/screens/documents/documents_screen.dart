@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../core/utils/haptic_utils.dart';
 import '../../blocs/documents/document_bloc.dart';
@@ -41,12 +41,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
   }
 
-  void _showYouTubeIngestModal() {
+  void _showYouTubeIngestModal(AppColors colors) {
     final urlController = TextEditingController();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: ColorPalette.elevatedSurface,
+      backgroundColor: colors.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -64,34 +64,34 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.video_library_outlined, color: ColorPalette.roseAccent),
+                  Icon(Icons.video_library_outlined, color: colors.textPrimary),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Ingest YouTube Video',
                     style: TextStyle(
-                      color: ColorPalette.textPrimary,
+                      color: colors.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.close, color: ColorPalette.textMuted, size: 20),
+                    icon: Icon(Icons.close, color: colors.textMuted, size: 20),
                     onPressed: () => Navigator.of(bottomSheetCtx).pop(),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Extract transcripts and index content into your RAG knowledge base.',
-                style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13),
+                style: TextStyle(color: colors.textSecondary, fontSize: 13),
               ),
               const SizedBox(height: 16),
               AppTextField(
                 controller: urlController,
                 hintText: 'https://www.youtube.com/watch?v=...',
                 keyboardType: TextInputType.url,
-                prefixIcon: const Icon(Icons.link, size: 18, color: ColorPalette.textMuted),
+                prefixIcon: Icon(Icons.link, size: 18, color: colors.textMuted),
               ),
               const SizedBox(height: 20),
               AppButton(
@@ -113,18 +113,27 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: ColorPalette.obsidianBackground,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        title: const Text('Knowledge Documents (RAG)'),
+        backgroundColor: colors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'Knowledge Documents (RAG)',
+          style: TextStyle(color: colors.textPrimary),
+        ),
+        iconTheme: IconThemeData(color: colors.textPrimary),
         actions: [
           IconButton(
-            icon: const Icon(Icons.video_call_outlined, color: ColorPalette.roseAccent),
+            icon: Icon(Icons.video_call_outlined, color: colors.textSecondary),
             tooltip: 'Ingest YouTube',
-            onPressed: _showYouTubeIngestModal,
+            onPressed: () => _showYouTubeIngestModal(colors),
           ),
           IconButton(
-            icon: const Icon(Icons.upload_file_outlined, color: ColorPalette.indigoAccent),
+            icon: Icon(Icons.upload_file_outlined, color: colors.textSecondary),
             tooltip: 'Upload Document',
             onPressed: _pickAndUploadFile,
           ),
@@ -151,17 +160,17 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: ColorPalette.error,
+                backgroundColor: colors.error,
               ),
             );
           }
         },
         builder: (context, state) {
           if (state is DocumentLoading) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(ColorPalette.indigoAccent),
+                valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
               ),
             );
           }
@@ -176,24 +185,25 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: ColorPalette.elevatedSurface,
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: colors.border),
                       ),
-                      child: const Icon(Icons.folder_open, size: 48, color: ColorPalette.textMuted),
+                      child: Icon(Icons.folder_open, size: 48, color: colors.textMuted),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'No Knowledge Documents',
                       style: TextStyle(
-                        color: ColorPalette.textPrimary,
+                        color: colors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Upload PDF, DOCX or YouTube transcripts for RAG query context.',
-                      style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13),
+                      style: TextStyle(color: colors.textSecondary, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 20),
@@ -202,15 +212,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                       children: [
                         AppButton(
                           text: 'Upload File',
-                          icon: const Icon(Icons.upload_file, size: 16, color: Colors.white),
+                          icon: Icon(Icons.upload_file, size: 16, color: colors.onPrimary),
                           onPressed: _pickAndUploadFile,
                         ),
                         const SizedBox(width: 12),
                         AppButton(
                           text: 'YouTube Ingest',
                           variant: ButtonVariant.secondary,
-                          icon: const Icon(Icons.video_library, size: 16, color: ColorPalette.roseAccent),
-                          onPressed: _showYouTubeIngestModal,
+                          icon: Icon(Icons.video_library, size: 16, color: colors.textPrimary),
+                          onPressed: () => _showYouTubeIngestModal(colors),
                         ),
                       ],
                     ),
@@ -230,23 +240,24 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 return Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: ColorPalette.elevatedSurface,
+                    color: colors.card,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: ColorPalette.subtleBorder),
+                    border: Border.all(color: colors.border),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: ColorPalette.indigoAccent.withValues(alpha: 0.15),
+                          color: colors.surface,
                           borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: colors.border),
                         ),
                         child: Icon(
                           doc.fileType.toLowerCase().contains('pdf')
                               ? Icons.picture_as_pdf
                               : Icons.description,
-                          color: ColorPalette.indigoAccent,
+                          color: colors.textPrimary,
                           size: 24,
                         ),
                       ),
@@ -257,8 +268,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                           children: [
                             Text(
                               doc.name,
-                              style: const TextStyle(
-                                color: ColorPalette.textPrimary,
+                              style: TextStyle(
+                                color: colors.textPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -268,13 +279,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                             const SizedBox(height: 4),
                             Text(
                               '${doc.chunksCount} chunks • ${sizeKb}KB • ${DateHelpers.formatShortDate(doc.createdAt)}',
-                              style: const TextStyle(color: ColorPalette.textMuted, fontSize: 12),
+                              style: TextStyle(color: colors.textMuted, fontSize: 12),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: ColorPalette.textMuted, size: 20),
+                        icon: Icon(Icons.delete_outline, color: colors.textMuted, size: 20),
                         onPressed: () {
                           HapticUtils.lightImpact();
                           context.read<DocumentBloc>().add(DeleteDocumentEvent(doc.id));

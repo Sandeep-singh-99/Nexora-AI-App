@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../core/utils/haptic_utils.dart';
 import '../../../domain/entities/memory_entity.dart';
@@ -32,17 +32,17 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  void _showAddMemoryDialog() {
+  void _showAddMemoryDialog(AppColors colors) {
     final contentController = TextEditingController();
     final categoryController = TextEditingController(text: 'General');
 
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: ColorPalette.elevatedSurface,
+        backgroundColor: colors.card,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: ColorPalette.subtleBorder),
+          side: BorderSide(color: colors.border),
         ),
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -50,10 +50,10 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Remember Fact / Preference',
                 style: TextStyle(
-                  color: ColorPalette.textPrimary,
+                  color: colors.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -111,15 +111,25 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: ColorPalette.obsidianBackground,
+      backgroundColor: colors.background,
       appBar: AppBar(
-        title: const Text('Long-Term Memory & Graph'),
+        backgroundColor: colors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'Long-Term Memory & Graph',
+          style: TextStyle(color: colors.textPrimary),
+        ),
+        iconTheme: IconThemeData(color: colors.textPrimary),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: ColorPalette.violetAccent,
-          labelColor: ColorPalette.textPrimary,
-          unselectedLabelColor: ColorPalette.textMuted,
+          indicatorColor: colors.primary,
+          labelColor: colors.textPrimary,
+          unselectedLabelColor: colors.textMuted,
+          indicatorSize: TabBarIndicatorSize.tab,
           tabs: const [
             Tab(icon: Icon(Icons.bookmark_outline, size: 18), text: 'Memories'),
             Tab(icon: Icon(Icons.hub_outlined, size: 18), text: 'Knowledge Graph'),
@@ -127,19 +137,19 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, color: ColorPalette.violetAccent),
+            icon: Icon(Icons.add_circle_outline, color: colors.textSecondary),
             tooltip: 'Add Memory',
-            onPressed: _showAddMemoryDialog,
+            onPressed: () => _showAddMemoryDialog(colors),
           ),
         ],
       ),
       body: BlocBuilder<MemoryBloc, MemoryState>(
         builder: (context, state) {
           if (state is MemoryLoading) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(ColorPalette.violetAccent),
+                valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
               ),
             );
           }
@@ -148,8 +158,8 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
             return TabBarView(
               controller: _tabController,
               children: [
-                _buildMemoriesTab(context, state),
-                _buildGraphTab(context, state.graph),
+                _buildMemoriesTab(context, state, colors),
+                _buildGraphTab(context, state.graph, colors),
               ],
             );
           }
@@ -160,7 +170,7 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildMemoriesTab(BuildContext context, MemoryLoaded state) {
+  Widget _buildMemoriesTab(BuildContext context, MemoryLoaded state, AppColors colors) {
     final categories = state.availableCategories.toList();
     final memories = state.filteredMemories;
 
@@ -168,32 +178,30 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
       children: [
         // Category Filter Chips
         SizedBox(
-          height: 48,
+          height: 52,
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             itemCount: categories.length,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final cat = categories[index];
-              final isSelected = state.selectedCategory == cat;
+              final isSelected = cat == state.selectedCategory;
 
               return ChoiceChip(
                 label: Text(cat),
                 selected: isSelected,
-                selectedColor: ColorPalette.violetAccent.withValues(alpha: 0.25),
-                backgroundColor: ColorPalette.elevatedSurface,
-                side: BorderSide(
-                  color: isSelected ? ColorPalette.violetAccent : ColorPalette.subtleBorder,
-                ),
+                selectedColor: colors.primary,
+                backgroundColor: colors.surface,
+                side: BorderSide(color: isSelected ? colors.primary : colors.border),
                 labelStyle: TextStyle(
-                  color: isSelected ? ColorPalette.violetAccent : ColorPalette.textSecondary,
+                  color: isSelected ? colors.onPrimary : colors.textSecondary,
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
                 onSelected: (_) {
                   HapticUtils.selectionClick();
-                  context.read<MemoryBloc>().add(LoadMemories(category: cat));
+                  context.read<MemoryBloc>().add(LoadMemories(category: isSelected ? null : cat));
                 },
               );
             },
@@ -207,89 +215,75 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.psychology_outlined, size: 48, color: ColorPalette.textMuted),
+                      Icon(Icons.psychology_outlined, size: 48, color: colors.textMuted),
                       const SizedBox(height: 12),
-                      const Text(
-                        'No memories saved yet',
-                        style: TextStyle(color: ColorPalette.textSecondary, fontSize: 15),
-                      ),
+                      Text('No Memories Recorded', style: TextStyle(color: colors.textSecondary, fontSize: 15)),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Nexora AI remembers context and preferences across sessions.',
-                        style: TextStyle(color: ColorPalette.textMuted, fontSize: 12),
-                      ),
-                      const SizedBox(height: 16),
-                      AppButton(
-                        text: 'Add Fact',
-                        variant: ButtonVariant.secondary,
-                        onPressed: _showAddMemoryDialog,
-                      ),
+                      Text('Memories ground agent context and persona.', style: TextStyle(color: colors.textMuted, fontSize: 12)),
                     ],
                   ),
                 )
               : ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: memories.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final item = memories[index];
 
                     return Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: ColorPalette.elevatedSurface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: ColorPalette.subtleBorder),
+                        color: colors.card,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: colors.border),
                       ),
-                      child: Row(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: ColorPalette.violetAccent.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        item.category,
-                                        style: const TextStyle(
-                                          color: ColorPalette.violetAccent,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      DateHelpers.formatShortDate(item.createdAt),
-                                      style: const TextStyle(color: ColorPalette.textMuted, fontSize: 11),
-                                    ),
-                                  ],
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: colors.surface,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: colors.border),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  item.content,
-                                  style: const TextStyle(
-                                    color: ColorPalette.textPrimary,
-                                    fontSize: 13,
-                                    height: 1.4,
+                                child: Text(
+                                  item.category.toUpperCase(),
+                                  style: TextStyle(
+                                    color: colors.textSecondary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                DateHelpers.formatShortDate(item.createdAt),
+                                style: TextStyle(color: colors.textMuted, fontSize: 11),
+                              ),
+                              const SizedBox(width: 4),
+                              IconButton(
+                                icon: Icon(Icons.delete_outline, size: 18, color: colors.textMuted),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                                onPressed: () {
+                                  HapticUtils.lightImpact();
+                                  context.read<MemoryBloc>().add(DeleteMemoryEvent(item.id));
+                                },
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline, size: 18, color: ColorPalette.textMuted),
-                            onPressed: () {
-                              HapticUtils.lightImpact();
-                              context.read<MemoryBloc>().add(DeleteMemoryEvent(item.id));
-                            },
+                          const SizedBox(height: 8),
+                          Text(
+                            item.content,
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 13,
+                              height: 1.45,
+                            ),
                           ),
                         ],
                       ),
@@ -301,23 +295,17 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildGraphTab(BuildContext context, KnowledgeGraphEntity? graph) {
+  Widget _buildGraphTab(BuildContext context, KnowledgeGraphEntity? graph, AppColors colors) {
     if (graph == null || graph.nodes.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.hub_outlined, size: 48, color: ColorPalette.textMuted),
+            Icon(Icons.hub_outlined, size: 48, color: colors.textMuted),
             const SizedBox(height: 12),
-            const Text(
-              'No Knowledge Graph Relationships',
-              style: TextStyle(color: ColorPalette.textSecondary, fontSize: 15),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Entity relations are formed automatically during conversational inference.',
-              style: TextStyle(color: ColorPalette.textMuted, fontSize: 12),
-            ),
+            Text('No Knowledge Graph Nodes', style: TextStyle(color: colors.textSecondary, fontSize: 15)),
+            const SizedBox(height: 4),
+            Text('Concepts and relational links extracted automatically from chats.', style: TextStyle(color: colors.textMuted, fontSize: 12)),
           ],
         ),
       );
@@ -325,14 +313,9 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return InteractiveViewer(
-          boundaryMargin: const EdgeInsets.all(100),
-          minScale: 0.5,
-          maxScale: 2.5,
-          child: CustomPaint(
-            size: Size(constraints.maxWidth, constraints.maxHeight),
-            painter: KnowledgeGraphPainter(graph: graph),
-          ),
+        return CustomPaint(
+          size: Size(constraints.maxWidth, constraints.maxHeight),
+          painter: KnowledgeGraphPainter(graph, colors),
         );
       },
     );
@@ -341,8 +324,9 @@ class _MemoryScreenState extends State<MemoryScreen> with SingleTickerProviderSt
 
 class KnowledgeGraphPainter extends CustomPainter {
   final KnowledgeGraphEntity graph;
+  final AppColors colors;
 
-  KnowledgeGraphPainter({required this.graph});
+  KnowledgeGraphPainter(this.graph, this.colors);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -360,7 +344,7 @@ class KnowledgeGraphPainter extends CustomPainter {
 
     // Draw Edges
     final edgePaint = Paint()
-      ..color = ColorPalette.violetAccent.withValues(alpha: 0.4)
+      ..color = colors.border
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
@@ -374,11 +358,11 @@ class KnowledgeGraphPainter extends CustomPainter {
 
     // Draw Nodes
     final nodeBgPaint = Paint()
-      ..color = ColorPalette.elevatedCard
+      ..color = colors.card
       ..style = PaintingStyle.fill;
 
     final nodeBorderPaint = Paint()
-      ..color = ColorPalette.violetAccent
+      ..color = colors.primary
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
@@ -395,8 +379,8 @@ class KnowledgeGraphPainter extends CustomPainter {
       // Label
       textPainter.text = TextSpan(
         text: node.label,
-        style: const TextStyle(
-          color: ColorPalette.textPrimary,
+        style: TextStyle(
+          color: colors.textPrimary,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),

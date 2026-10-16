@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/auth/auth_event.dart';
 import '../../blocs/auth/auth_state.dart';
@@ -48,8 +48,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: ColorPalette.obsidianBackground,
+      backgroundColor: colors.background,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
@@ -58,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: ColorPalette.error,
+                backgroundColor: colors.error,
               ),
             );
           }
@@ -76,33 +78,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Header
+                      // Header - Solid container, zero gradients
                       Center(
                         child: Container(
                           width: 56,
                           height: 56,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [ColorPalette.violetAccent, ColorPalette.indigoAccent],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
+                            color: colors.primary,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.person_add_alt_1,
-                            color: Colors.white,
+                            color: colors.onPrimary,
                             size: 28,
                           ),
                         ),
                       ).animate().scale(duration: 400.ms),
                       const SizedBox(height: 16),
 
-                      const Center(
+                      Center(
                         child: Text(
                           'Join Nexora AI',
                           style: TextStyle(
-                            color: ColorPalette.textPrimary,
+                            color: colors.textPrimary,
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
@@ -110,10 +108,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Center(
+                      Center(
                         child: Text(
                           'Create your agent workspace account',
-                          style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13),
+                          style: TextStyle(color: colors.textSecondary, fontSize: 13),
                         ),
                       ),
 
@@ -121,6 +119,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       GlassContainer(
                         padding: const EdgeInsets.all(24),
+                        backgroundColor: colors.card,
+                        borderColor: colors.border,
                         child: Form(
                           key: _formKey,
                           child: Column(
@@ -130,7 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 controller: _usernameController,
                                 labelText: 'Username',
                                 hintText: 'johndoe',
-                                prefixIcon: const Icon(Icons.person_outline, size: 20, color: ColorPalette.textMuted),
+                                prefixIcon: Icon(Icons.person_outline, size: 20, color: colors.textMuted),
                                 validator: (val) {
                                   if (val == null || val.trim().isEmpty) return 'Enter a username';
                                   if (val.trim().length < 3) return 'At least 3 characters';
@@ -144,7 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 labelText: 'Email Address',
                                 hintText: 'name@example.com',
                                 keyboardType: TextInputType.emailAddress,
-                                prefixIcon: const Icon(Icons.email_outlined, size: 20, color: ColorPalette.textMuted),
+                                prefixIcon: Icon(Icons.email_outlined, size: 20, color: colors.textMuted),
                                 validator: (val) {
                                   if (val == null || val.trim().isEmpty) return 'Enter your email';
                                   if (!val.contains('@')) return 'Invalid email';
@@ -158,12 +158,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 labelText: 'Password',
                                 hintText: '••••••••',
                                 obscureText: _obscurePassword,
-                                prefixIcon: const Icon(Icons.lock_outline, size: 20, color: ColorPalette.textMuted),
+                                prefixIcon: Icon(Icons.lock_outline, size: 20, color: colors.textMuted),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
                                     size: 20,
-                                    color: ColorPalette.textMuted,
+                                    color: colors.textMuted,
                                   ),
                                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                 ),
@@ -180,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 labelText: 'Confirm Password',
                                 hintText: '••••••••',
                                 obscureText: _obscurePassword,
-                                prefixIcon: const Icon(Icons.lock_outline, size: 20, color: ColorPalette.textMuted),
+                                prefixIcon: Icon(Icons.lock_outline, size: 20, color: colors.textMuted),
                                 validator: (val) {
                                   if (val != _passwordController.text) {
                                     return 'Passwords do not match';
@@ -208,16 +208,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'Already have an account?',
-                            style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13),
+                            style: TextStyle(color: colors.textSecondary, fontSize: 13),
                           ),
                           TextButton(
                             onPressed: () => context.go('/login'),
-                            child: const Text(
+                            child: Text(
                               'Sign in',
                               style: TextStyle(
-                                color: ColorPalette.indigoAccent,
+                                color: colors.textPrimary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),

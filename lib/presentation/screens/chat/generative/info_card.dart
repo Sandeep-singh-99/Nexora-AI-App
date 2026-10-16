@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 
 class InfoCard extends StatelessWidget {
   final String title;
@@ -19,13 +19,15 @@ class InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -39,8 +41,8 @@ class InfoCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -49,7 +51,7 @@ class InfoCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: const TextStyle(color: ColorPalette.textMuted, fontSize: 12),
+                        style: TextStyle(color: colors.textMuted, fontSize: 12),
                       ),
                     ],
                   ],
@@ -59,14 +61,14 @@ class InfoCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: ColorPalette.emeraldAccent.withValues(alpha: 0.15),
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: ColorPalette.emeraldAccent.withValues(alpha: 0.4)),
+                    border: Border.all(color: colors.border),
                   ),
                   child: Text(
                     status!,
-                    style: const TextStyle(
-                      color: ColorPalette.emeraldAccent,
+                    style: TextStyle(
+                      color: colors.textSecondary,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
@@ -78,8 +80,8 @@ class InfoCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               summary!,
-              style: const TextStyle(
-                color: ColorPalette.textSecondary,
+              style: TextStyle(
+                color: colors.textSecondary,
                 fontSize: 13,
                 height: 1.4,
               ),
@@ -87,7 +89,7 @@ class InfoCard extends StatelessWidget {
           ],
           if (metrics.isNotEmpty) ...[
             const SizedBox(height: 14),
-            const Divider(height: 1, color: ColorPalette.subtleBorder),
+            Divider(height: 1, color: colors.border),
             const SizedBox(height: 12),
             Wrap(
               spacing: 16,
@@ -98,8 +100,8 @@ class InfoCard extends StatelessWidget {
                   children: [
                     Text(
                       entry.key.toUpperCase(),
-                      style: const TextStyle(
-                        color: ColorPalette.textMuted,
+                      style: TextStyle(
+                        color: colors.textMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
@@ -108,8 +110,8 @@ class InfoCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       entry.value.toString(),
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 
 class DataTableCard extends StatefulWidget {
   final String title;
@@ -43,25 +43,27 @@ class _DataTableCardState extends State<DataTableCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              const Icon(Icons.table_chart_outlined, size: 18, color: ColorPalette.indigoAccent),
+              Icon(Icons.table_chart_outlined, size: 18, color: colors.textSecondary),
               const SizedBox(width: 8),
               Text(
                 widget.title,
-                style: const TextStyle(
-                  color: ColorPalette.textPrimary,
+                style: TextStyle(
+                  color: colors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -69,7 +71,7 @@ class _DataTableCardState extends State<DataTableCard> {
               const Spacer(),
               Text(
                 '${_currentRows.length} rows',
-                style: const TextStyle(color: ColorPalette.textMuted, fontSize: 11),
+                style: TextStyle(color: colors.textMuted, fontSize: 11),
               ),
             ],
           ),
@@ -79,13 +81,13 @@ class _DataTableCardState extends State<DataTableCard> {
             child: DataTable(
               sortColumnIndex: _sortColumnIndex,
               sortAscending: _isAscending,
-              headingRowColor: WidgetStateProperty.all(ColorPalette.obsidianBackground),
+              headingRowColor: WidgetStateProperty.all(colors.surface),
               columns: widget.columns.asMap().entries.map((entry) {
                 return DataColumn(
                   label: Text(
                     entry.value,
-                    style: const TextStyle(
-                      color: ColorPalette.textPrimary,
+                    style: TextStyle(
+                      color: colors.textPrimary,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -99,7 +101,7 @@ class _DataTableCardState extends State<DataTableCard> {
                     return DataCell(
                       Text(
                         cell.toString(),
-                        style: const TextStyle(color: ColorPalette.textSecondary, fontSize: 12),
+                        style: TextStyle(color: colors.textSecondary, fontSize: 12),
                       ),
                     );
                   }).toList(),

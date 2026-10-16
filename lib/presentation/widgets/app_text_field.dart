@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../app/theme/color_palette.dart';
+import '../../app/theme/app_colors.dart';
 
 class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -37,14 +37,16 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (labelText != null) ...[
           Text(
             labelText!,
-            style: const TextStyle(
-              color: ColorPalette.textSecondary,
+            style: TextStyle(
+              color: colors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -59,7 +61,7 @@ class AppTextField extends StatelessWidget {
           minLines: minLines,
           readOnly: readOnly,
           focusNode: focusNode,
-          style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 14),
+          style: TextStyle(color: colors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             hintText: hintText,
             prefixIcon: prefixIcon,

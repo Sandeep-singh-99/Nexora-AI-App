@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/haptic_utils.dart';
 import '../../../../domain/entities/conversation_entity.dart';
 import '../../../blocs/conversation/conversation_bloc.dart';
@@ -20,8 +20,10 @@ class ConversationDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Drawer(
-      backgroundColor: ColorPalette.obsidianBackground,
+      backgroundColor: colors.background,
       child: SafeArea(
         child: BlocBuilder<ConversationBloc, ConversationState>(
           builder: (context, state) {
@@ -44,18 +46,18 @@ class ConversationDrawer extends StatelessWidget {
                             height: 44,
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
-                              color: ColorPalette.indigoAccent.withValues(alpha: 0.15),
+                              color: colors.primary,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: ColorPalette.indigoAccent.withValues(alpha: 0.4)),
                             ),
-                            child: const Row(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.add, color: ColorPalette.indigoAccent, size: 20),
-                                SizedBox(width: 8),
+                                Icon(Icons.add, color: colors.onPrimary, size: 20),
+                                const SizedBox(width: 8),
                                 Text(
                                   'New Chat',
                                   style: TextStyle(
-                                    color: ColorPalette.indigoAccent,
+                                    color: colors.onPrimary,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -76,32 +78,41 @@ class ConversationDrawer extends StatelessWidget {
                     onChanged: (val) {
                       context.read<ConversationBloc>().add(SearchConversations(val));
                     },
-                    style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 13),
+                    style: TextStyle(color: colors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: 'Search conversations...',
-                      prefixIcon: const Icon(Icons.search, size: 18, color: ColorPalette.textMuted),
+                      hintStyle: TextStyle(color: colors.textMuted, fontSize: 13),
+                      prefixIcon: Icon(Icons.search, size: 18, color: colors.textMuted),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      fillColor: ColorPalette.elevatedSurface,
+                      fillColor: colors.surface,
                       filled: true,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: ColorPalette.subtleBorder),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: colors.primary, width: 1.5),
                       ),
                     ),
                   ),
                 ),
 
-                const Divider(height: 1, color: ColorPalette.subtleBorder),
+                Divider(height: 1, color: colors.border),
 
                 // List of conversations
                 Expanded(
-                  child: _buildConversationList(context, state),
+                  child: _buildConversationList(context, state, colors),
                 ),
 
-                const Divider(height: 1, color: ColorPalette.subtleBorder),
+                Divider(height: 1, color: colors.border),
 
-                // Bottom Navigation Links: Documents, Memory, Settings
+                // Bottom Navigation Links: Documents, Memory, Settings - Neutral icons, zero fancy neon
                 Padding(
                   padding: const EdgeInsets.all(8),
                   child: Column(
@@ -109,8 +120,8 @@ class ConversationDrawer extends StatelessWidget {
                       ListTile(
                         dense: true,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        leading: const Icon(Icons.folder_copy_outlined, size: 20, color: ColorPalette.cyanAccent),
-                        title: const Text('Knowledge Documents', style: TextStyle(color: ColorPalette.textPrimary, fontSize: 13)),
+                        leading: Icon(Icons.folder_copy_outlined, size: 20, color: colors.textSecondary),
+                        title: Text('Knowledge Documents', style: TextStyle(color: colors.textPrimary, fontSize: 13)),
                         onTap: () {
                           Navigator.of(context).pop();
                           context.push('/documents');
@@ -119,8 +130,8 @@ class ConversationDrawer extends StatelessWidget {
                       ListTile(
                         dense: true,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        leading: const Icon(Icons.hub_outlined, size: 20, color: ColorPalette.violetAccent),
-                        title: const Text('Memory & Graph', style: TextStyle(color: ColorPalette.textPrimary, fontSize: 13)),
+                        leading: Icon(Icons.hub_outlined, size: 20, color: colors.textSecondary),
+                        title: Text('Memory & Graph', style: TextStyle(color: colors.textPrimary, fontSize: 13)),
                         onTap: () {
                           Navigator.of(context).pop();
                           context.push('/memory');
@@ -129,8 +140,8 @@ class ConversationDrawer extends StatelessWidget {
                       ListTile(
                         dense: true,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        leading: const Icon(Icons.settings_outlined, size: 20, color: ColorPalette.textSecondary),
-                        title: const Text('BYOK & Settings', style: TextStyle(color: ColorPalette.textPrimary, fontSize: 13)),
+                        leading: Icon(Icons.settings_outlined, size: 20, color: colors.textSecondary),
+                        title: Text('Settings & Theme', style: TextStyle(color: colors.textPrimary, fontSize: 13)),
                         onTap: () {
                           Navigator.of(context).pop();
                           context.push('/settings');
@@ -147,12 +158,12 @@ class ConversationDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildConversationList(BuildContext context, ConversationState state) {
+  Widget _buildConversationList(BuildContext context, ConversationState state, AppColors colors) {
     if (state is ConversationLoading) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(ColorPalette.indigoAccent),
+          valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
         ),
       );
     }
@@ -170,8 +181,8 @@ class ConversationDrawer extends StatelessWidget {
       children: [
         // Pinned Section
         if (pinned.isNotEmpty) ...[
-          _buildCategoryHeader('PINNED'),
-          ...pinned.map((c) => _buildConversationTile(context, c, isSelected: c.id == selectedId)),
+          _buildCategoryHeader('PINNED', colors),
+          ...pinned.map((c) => _buildConversationTile(context, c, colors, isSelected: c.id == selectedId)),
           const SizedBox(height: 8),
         ],
 
@@ -181,8 +192,8 @@ class ConversationDrawer extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCategoryHeader(entry.key.toUpperCase()),
-              ...entry.value.map((c) => _buildConversationTile(context, c, isSelected: c.id == selectedId)),
+              _buildCategoryHeader(entry.key.toUpperCase(), colors),
+              ...entry.value.map((c) => _buildConversationTile(context, c, colors, isSelected: c.id == selectedId)),
               const SizedBox(height: 8),
             ],
           );
@@ -191,13 +202,13 @@ class ConversationDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryHeader(String title) {
+  Widget _buildCategoryHeader(String title, AppColors colors) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Text(
         title,
-        style: const TextStyle(
-          color: ColorPalette.textMuted,
+        style: TextStyle(
+          color: colors.textMuted,
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
@@ -208,14 +219,15 @@ class ConversationDrawer extends StatelessWidget {
 
   Widget _buildConversationTile(
     BuildContext context,
-    ConversationEntity conversation, {
+    ConversationEntity conversation,
+    AppColors colors, {
     required bool isSelected,
   }) {
     return Dismissible(
       key: Key(conversation.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: ColorPalette.error.withValues(alpha: 0.8),
+        color: colors.error,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16),
         child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
@@ -227,20 +239,20 @@ class ConversationDrawer extends StatelessWidget {
       child: ListTile(
         dense: true,
         selected: isSelected,
-        selectedTileColor: ColorPalette.elevatedSurface,
+        selectedTileColor: colors.cardHover,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         leading: Icon(
           conversation.isPinned ? Icons.push_pin : Icons.chat_bubble_outline,
           size: 16,
           color: isSelected
-              ? ColorPalette.indigoAccent
-              : (conversation.isPinned ? ColorPalette.amberAccent : ColorPalette.textMuted),
+              ? colors.primary
+              : (conversation.isPinned ? colors.warning : colors.textMuted),
         ),
         title: Text(
           conversation.title,
           style: TextStyle(
-            color: isSelected ? ColorPalette.textPrimary : ColorPalette.textSecondary,
+            color: isSelected ? colors.textPrimary : colors.textSecondary,
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
@@ -248,11 +260,11 @@ class ConversationDrawer extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_horiz, size: 16, color: ColorPalette.textMuted),
-          color: ColorPalette.elevatedSurface,
+          icon: Icon(Icons.more_horiz, size: 16, color: colors.textMuted),
+          color: colors.card,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
-            side: const BorderSide(color: ColorPalette.subtleBorder),
+            side: BorderSide(color: colors.border),
           ),
           onSelected: (action) {
             final bloc = context.read<ConversationBloc>();
@@ -269,21 +281,21 @@ class ConversationDrawer extends StatelessWidget {
               value: 'pin',
               child: Text(
                 conversation.isPinned ? 'Unpin Chat' : 'Pin Chat',
-                style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 13),
+                style: TextStyle(color: colors.textPrimary, fontSize: 13),
               ),
             ),
             PopupMenuItem(
               value: 'archive',
               child: Text(
                 conversation.isArchived ? 'Unarchive' : 'Archive',
-                style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 13),
+                style: TextStyle(color: colors.textPrimary, fontSize: 13),
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'delete',
               child: Text(
                 'Delete',
-                style: TextStyle(color: ColorPalette.error, fontSize: 13),
+                style: TextStyle(color: colors.error, fontSize: 13),
               ),
             ),
           ],

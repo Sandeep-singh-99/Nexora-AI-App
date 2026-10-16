@@ -60,7 +60,7 @@ class _NexoraAppState extends State<NexoraApp> {
           return MaterialApp.router(
             title: 'Nexora AI',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.darkTheme,
+            theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: settings.themeMode,
             routerConfig: _appRouter.router,

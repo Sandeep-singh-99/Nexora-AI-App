@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:flutter_highlight/themes/atom-one-light.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:markdown/markdown.dart' as md;
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/haptic_utils.dart';
 import '../../../../domain/entities/message_entity.dart';
 import '../generative/generative_ui_renderer.dart';
@@ -35,17 +36,20 @@ class MessageBubble extends StatelessWidget {
   void _copyToClipboard(BuildContext context, String text) {
     HapticUtils.selectionClick();
     Clipboard.setData(ClipboardData(text: text));
+    final colors = context.colors;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Message copied to clipboard!'),
-        backgroundColor: ColorPalette.elevatedCardHover,
-        duration: Duration(seconds: 1),
+      SnackBar(
+        content: const Text('Message copied to clipboard!'),
+        backgroundColor: colors.cardHover,
+        duration: const Duration(seconds: 1),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -62,20 +66,18 @@ class MessageBubble extends StatelessWidget {
                     width: 20,
                     height: 20,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [ColorPalette.indigoAccent, ColorPalette.violetAccent],
-                      ),
+                      color: colors.primary,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Center(
-                      child: Icon(Icons.auto_awesome, size: 12, color: Colors.white),
+                    child: Center(
+                      child: Icon(Icons.auto_awesome, size: 12, color: colors.onPrimary),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Nexora AI',
                     style: TextStyle(
-                      color: ColorPalette.textPrimary,
+                      color: colors.textPrimary,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -86,14 +88,14 @@ class MessageBubble extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: ColorPalette.emeraldAccent.withValues(alpha: 0.15),
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: ColorPalette.emeraldAccent.withValues(alpha: 0.4)),
+                        border: Border.all(color: colors.border),
                       ),
                       child: Text(
                         'BYOK: ${message.byokProvider ?? "Custom"}',
-                        style: const TextStyle(
-                          color: ColorPalette.emeraldAccent,
+                        style: TextStyle(
+                          color: colors.textSecondary,
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
                         ),
@@ -103,14 +105,14 @@ class MessageBubble extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: ColorPalette.elevatedSurface,
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: ColorPalette.subtleBorder),
+                        border: Border.all(color: colors.border),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Cloud',
                         style: TextStyle(
-                          color: ColorPalette.textMuted,
+                          color: colors.textMuted,
                           fontSize: 9,
                           fontWeight: FontWeight.w500,
                         ),
@@ -145,7 +147,7 @@ class MessageBubble extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: isUser ? ColorPalette.userBubble : ColorPalette.aiBubble,
+              color: isUser ? colors.userBubble : colors.aiBubble,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(16),
                 topRight: const Radius.circular(16),
@@ -153,7 +155,7 @@ class MessageBubble extends StatelessWidget {
                 bottomRight: Radius.circular(isUser ? 4 : 16),
               ),
               border: Border.all(
-                color: isUser ? ColorPalette.indigoAccent.withValues(alpha: 0.3) : ColorPalette.subtleBorder,
+                color: isUser ? Colors.transparent : colors.border,
                 width: 1,
               ),
             ),
@@ -164,23 +166,28 @@ class MessageBubble extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(
+                      SizedBox(
                         width: 14,
                         height: 14,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(ColorPalette.indigoAccent),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            isUser ? colors.onUserBubble : colors.textPrimary,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         message.status ?? 'Generating...',
-                        style: const TextStyle(color: ColorPalette.textMuted, fontSize: 13),
+                        style: TextStyle(
+                          color: isUser ? colors.onUserBubble.withValues(alpha: 0.7) : colors.textMuted,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
                 ] else ...[
-                  _buildContent(context),
+                  _buildContent(context, colors),
                 ],
               ],
             ),
@@ -212,25 +219,25 @@ class MessageBubble extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: ColorPalette.indigoAccent.withValues(alpha: 0.15),
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: ColorPalette.indigoAccent.withValues(alpha: 0.4)),
+                    border: Border.all(color: colors.border),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.code, size: 16, color: ColorPalette.indigoAccent),
+                      Icon(Icons.code, size: 16, color: colors.textPrimary),
                       const SizedBox(width: 8),
                       Text(
                         'View ${message.artifact!.title}',
-                        style: const TextStyle(
-                          color: ColorPalette.indigoAccent,
+                        style: TextStyle(
+                          color: colors.textPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.open_in_new, size: 14, color: ColorPalette.indigoAccent),
+                      Icon(Icons.open_in_new, size: 14, color: colors.textMuted),
                     ],
                   ),
                 ),
@@ -246,7 +253,7 @@ class MessageBubble extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.copy_outlined, size: 16, color: ColorPalette.textMuted),
+                    icon: Icon(Icons.copy_outlined, size: 16, color: colors.textMuted),
                     tooltip: 'Copy',
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
@@ -255,7 +262,7 @@ class MessageBubble extends StatelessWidget {
                   const SizedBox(width: 4),
                   if (onRegenerate != null)
                     IconButton(
-                      icon: const Icon(Icons.refresh, size: 16, color: ColorPalette.textMuted),
+                      icon: Icon(Icons.refresh, size: 16, color: colors.textMuted),
                       tooltip: 'Regenerate',
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
@@ -270,41 +277,42 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
-    // If message contains LaTeX markers like $$ or \(, format with math
+  Widget _buildContent(BuildContext context, AppColors colors) {
+    final textColor = isUser ? colors.onUserBubble : colors.onAiBubble;
+
     return MarkdownBody(
       data: message.content,
       selectable: true,
       styleSheet: MarkdownStyleSheet(
-        p: const TextStyle(
-          color: ColorPalette.textPrimary,
+        p: TextStyle(
+          color: textColor,
           fontSize: 14,
           height: 1.5,
         ),
-        h1: const TextStyle(color: ColorPalette.textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
-        h2: const TextStyle(color: ColorPalette.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
-        h3: const TextStyle(color: ColorPalette.textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
-        code: const TextStyle(
-          backgroundColor: Color(0xFF1E293D),
-          color: ColorPalette.cyanAccent,
+        h1: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold),
+        h2: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
+        h3: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w600),
+        code: TextStyle(
+          backgroundColor: isUser ? Colors.black.withValues(alpha: 0.2) : colors.surface,
+          color: textColor,
           fontFamily: 'monospace',
           fontSize: 12,
         ),
         codeblockPadding: const EdgeInsets.all(12),
         codeblockDecoration: BoxDecoration(
-          color: ColorPalette.obsidianBackground,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: ColorPalette.subtleBorder),
+          border: Border.all(color: colors.border),
         ),
-        blockquote: const TextStyle(color: ColorPalette.textSecondary),
+        blockquote: TextStyle(color: colors.textSecondary),
         blockquoteDecoration: BoxDecoration(
-          border: const Border(left: BorderSide(color: ColorPalette.indigoAccent, width: 3)),
-          color: ColorPalette.elevatedCardHover,
+          border: Border(left: BorderSide(color: colors.border, width: 3)),
+          color: colors.surface,
           borderRadius: BorderRadius.circular(4),
         ),
       ),
       builders: {
-        'code': CodeBlockBuilder(context),
+        'code': CodeBlockBuilder(context, colors),
       },
       extensionSet: md.ExtensionSet.gitHubFlavored,
     );
@@ -313,7 +321,8 @@ class MessageBubble extends StatelessWidget {
 
 class CodeBlockBuilder extends MarkdownElementBuilder {
   final BuildContext context;
-  CodeBlockBuilder(this.context);
+  final AppColors colors;
+  CodeBlockBuilder(this.context, this.colors);
 
   @override
   Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
@@ -327,14 +336,15 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: ColorPalette.obsidianBackground,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: colors.border),
         ),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Math.tex(
             cleanLatex,
-            textStyle: const TextStyle(color: ColorPalette.textPrimary, fontSize: 16),
+            textStyle: TextStyle(color: colors.textPrimary, fontSize: 16),
             onErrorFallback: (_) => Text(code, style: const TextStyle(fontFamily: 'monospace')),
           ),
         ),
@@ -345,26 +355,27 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
       return Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: ColorPalette.obsidianBackground,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: ColorPalette.subtleBorder),
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: const BoxDecoration(
-                color: ColorPalette.elevatedSurface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+              decoration: BoxDecoration(
+                color: colors.cardHover,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                border: Border(bottom: BorderSide(color: colors.border)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     language.isEmpty ? 'CODE' : language.toUpperCase(),
-                    style: const TextStyle(
-                      color: ColorPalette.textMuted,
+                    style: TextStyle(
+                      color: colors.textMuted,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -375,19 +386,19 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
                       HapticUtils.selectionClick();
                       Clipboard.setData(ClipboardData(text: code));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Code copied to clipboard!'),
-                          backgroundColor: ColorPalette.emeraldAccent,
-                          duration: Duration(seconds: 1),
+                        SnackBar(
+                          content: const Text('Code copied to clipboard!'),
+                          backgroundColor: colors.cardHover,
+                          duration: const Duration(seconds: 1),
                         ),
                       );
                     },
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.copy, size: 12, color: ColorPalette.textMuted),
-                        SizedBox(width: 4),
-                        Text('Copy', style: TextStyle(color: ColorPalette.textMuted, fontSize: 11)),
+                        Icon(Icons.copy, size: 12, color: colors.textMuted),
+                        const SizedBox(width: 4),
+                        Text('Copy', style: TextStyle(color: colors.textMuted, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -400,7 +411,7 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
               child: HighlightView(
                 code,
                 language: language.isNotEmpty ? language : 'plaintext',
-                theme: atomOneDarkTheme,
+                theme: colors.isDark ? atomOneDarkTheme : atomOneLightTheme,
                 textStyle: const TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 12,

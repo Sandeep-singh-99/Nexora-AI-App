@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/date_helpers.dart';
 import '../../../../core/utils/haptic_utils.dart';
 
@@ -62,12 +62,14 @@ class _YouTubeCardState extends State<YouTubeCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -78,13 +80,13 @@ class _YouTubeCardState extends State<YouTubeCard> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 children: [
-                  const Icon(Icons.play_circle_fill, color: ColorPalette.roseAccent, size: 20),
+                  Icon(Icons.play_circle_fill, color: colors.textSecondary, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       widget.title!,
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -117,12 +119,12 @@ class _YouTubeCardState extends State<YouTubeCard> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.subtitles_outlined, size: 16, color: ColorPalette.indigoAccent),
+                    Icon(Icons.subtitles_outlined, size: 16, color: colors.textSecondary),
                     const SizedBox(width: 8),
                     Text(
                       'Video Transcript (${widget.transcripts.length} cues)',
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -131,21 +133,21 @@ class _YouTubeCardState extends State<YouTubeCard> {
                     Icon(
                       _isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                       size: 18,
-                      color: ColorPalette.textMuted,
+                      color: colors.textMuted,
                     ),
                   ],
                 ),
               ),
             ),
             if (_isTranscriptExpanded) ...[
-              const Divider(height: 1, color: ColorPalette.subtleBorder),
+              Divider(height: 1, color: colors.border),
               Container(
                 constraints: const BoxConstraints(maxHeight: 220),
                 child: ListView.separated(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: widget.transcripts.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: ColorPalette.subtleBorder),
+                  separatorBuilder: (_, __) => Divider(height: 1, color: colors.border),
                   itemBuilder: (context, index) {
                     final item = widget.transcripts[index];
                     final seconds = (item['seconds'] as num?)?.toInt() ?? 0;
@@ -161,13 +163,14 @@ class _YouTubeCardState extends State<YouTubeCard> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: ColorPalette.indigoAccent.withValues(alpha: 0.2),
+                                color: colors.surface,
                                 borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: colors.border),
                               ),
                               child: Text(
                                 DateHelpers.formatSecondsToMinutes(seconds),
-                                style: const TextStyle(
-                                  color: ColorPalette.indigoAccent,
+                                style: TextStyle(
+                                  color: colors.textPrimary,
                                   fontSize: 11,
                                   fontFamily: 'monospace',
                                   fontWeight: FontWeight.w600,
@@ -178,8 +181,8 @@ class _YouTubeCardState extends State<YouTubeCard> {
                             Expanded(
                               child: Text(
                                 text,
-                                style: const TextStyle(
-                                  color: ColorPalette.textSecondary,
+                                style: TextStyle(
+                                  color: colors.textSecondary,
                                   fontSize: 12,
                                   height: 1.4,
                                 ),
@@ -204,15 +207,15 @@ class _YouTubeCardState extends State<YouTubeCard> {
                 runSpacing: 6,
                 children: widget.followUpPrompts.map((prompt) {
                   return ActionChip(
-                    backgroundColor: ColorPalette.elevatedCardHover,
+                    backgroundColor: colors.surface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(color: ColorPalette.subtleBorder),
+                      side: BorderSide(color: colors.border),
                     ),
                     label: Text(
                       prompt,
-                      style: const TextStyle(
-                        color: ColorPalette.textPrimary,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 12,
                       ),
                     ),

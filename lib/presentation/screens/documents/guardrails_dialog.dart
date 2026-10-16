@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/haptic_utils.dart';
 import '../../../domain/entities/document_entity.dart';
 import '../../widgets/app_button.dart';
@@ -46,11 +46,13 @@ class GuardrailsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Dialog(
-      backgroundColor: ColorPalette.elevatedSurface,
+      backgroundColor: colors.card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: ColorPalette.warning, width: 1.5),
+        side: BorderSide(color: colors.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -64,27 +66,28 @@ class GuardrailsDialog extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: ColorPalette.warning.withValues(alpha: 0.15),
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: colors.border),
                   ),
-                  child: const Icon(Icons.shield_outlined, color: ColorPalette.warning, size: 24),
+                  child: Icon(Icons.shield_outlined, color: colors.warning, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Sensitive Data Detected',
                         style: TextStyle(
-                          color: ColorPalette.textPrimary,
+                          color: colors.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         'Nexora Guardrails Alert',
-                        style: TextStyle(color: ColorPalette.warning, fontSize: 11, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: colors.warning, fontSize: 11, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -97,7 +100,7 @@ class GuardrailsDialog extends StatelessWidget {
               message.isNotEmpty
                   ? message
                   : 'Automated PII scanner detected potential credentials or personal data in this document.',
-              style: const TextStyle(color: ColorPalette.textSecondary, fontSize: 13, height: 1.4),
+              style: TextStyle(color: colors.textSecondary, fontSize: 13, height: 1.4),
             ),
             const SizedBox(height: 16),
 
@@ -106,14 +109,14 @@ class GuardrailsDialog extends StatelessWidget {
               constraints: const BoxConstraints(maxHeight: 180),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ColorPalette.obsidianBackground,
+                color: colors.surface,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: ColorPalette.subtleBorder),
+                border: Border.all(color: colors.border),
               ),
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: findings.length,
-                separatorBuilder: (_, __) => const Divider(height: 12, color: ColorPalette.subtleBorder),
+                separatorBuilder: (_, __) => Divider(height: 12, color: colors.border),
                 itemBuilder: (context, index) {
                   final item = findings[index];
                   return Column(
@@ -124,8 +127,8 @@ class GuardrailsDialog extends StatelessWidget {
                         children: [
                           Text(
                             item.category,
-                            style: const TextStyle(
-                              color: ColorPalette.warning,
+                            style: TextStyle(
+                              color: colors.textPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
@@ -133,12 +136,13 @@ class GuardrailsDialog extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: ColorPalette.elevatedCardHover,
+                              color: colors.cardHover,
                               borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: colors.border),
                             ),
                             child: Text(
                               '${item.count} found',
-                              style: const TextStyle(color: ColorPalette.textMuted, fontSize: 11),
+                              style: TextStyle(color: colors.textMuted, fontSize: 11),
                             ),
                           ),
                         ],
@@ -147,8 +151,8 @@ class GuardrailsDialog extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Samples: ${item.samples.join(", ")}',
-                          style: const TextStyle(
-                            color: ColorPalette.textMuted,
+                          style: TextStyle(
+                            color: colors.textMuted,
                             fontSize: 11,
                             fontFamily: 'monospace',
                           ),

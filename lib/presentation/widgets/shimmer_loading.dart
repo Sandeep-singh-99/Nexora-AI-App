@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../app/theme/color_palette.dart';
+import '../../app/theme/app_colors.dart';
 
 class ShimmerLoading extends StatelessWidget {
   final double width;
@@ -16,14 +16,15 @@ class ShimmerLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Shimmer.fromColors(
-      baseColor: ColorPalette.elevatedSurface,
-      highlightColor: ColorPalette.elevatedCardHover,
+      baseColor: colors.surface,
+      highlightColor: colors.cardHover,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: ColorPalette.elevatedSurface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),

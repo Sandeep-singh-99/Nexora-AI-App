@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/haptic_utils.dart';
 import '../../blocs/chat/chat_bloc.dart';
 import '../../blocs/chat/chat_event.dart';
@@ -88,6 +88,8 @@ class _MainChatScreenState extends State<MainChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return BlocListener<ConversationBloc, ConversationState>(
       listener: (context, convState) {
         if (convState is ConversationLoaded && convState.selectedConversationId != null) {
@@ -105,7 +107,7 @@ class _MainChatScreenState extends State<MainChatScreen> {
 
               return Scaffold(
                 key: _scaffoldKey,
-                backgroundColor: ColorPalette.obsidianBackground,
+                backgroundColor: colors.background,
                 drawer: ConversationDrawer(
                   onSelect: (id) {
                     context.read<ConversationBloc>().add(SelectConversation(id));
@@ -120,8 +122,11 @@ class _MainChatScreenState extends State<MainChatScreen> {
                   },
                 ),
                 appBar: AppBar(
+                  backgroundColor: colors.background,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
                   leading: IconButton(
-                    icon: const Icon(Icons.menu, color: ColorPalette.textPrimary),
+                    icon: Icon(Icons.menu, color: colors.textPrimary),
                     onPressed: () {
                       HapticUtils.lightImpact();
                       _scaffoldKey.currentState?.openDrawer();
@@ -132,8 +137,8 @@ class _MainChatScreenState extends State<MainChatScreen> {
                     children: [
                       Text(
                         currentConv?.title ?? 'Nexora AI',
-                        style: const TextStyle(
-                          color: ColorPalette.textPrimary,
+                        style: TextStyle(
+                          color: colors.textPrimary,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -142,8 +147,8 @@ class _MainChatScreenState extends State<MainChatScreen> {
                       ),
                       Text(
                         activeModel,
-                        style: const TextStyle(
-                          color: ColorPalette.textMuted,
+                        style: TextStyle(
+                          color: colors.textMuted,
                           fontSize: 11,
                         ),
                       ),
@@ -156,22 +161,36 @@ class _MainChatScreenState extends State<MainChatScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: ColorPalette.emeraldAccent.withValues(alpha: 0.15),
+                            color: colors.surface,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: ColorPalette.emeraldAccent.withValues(alpha: 0.4)),
+                            border: Border.all(color: colors.border),
                           ),
-                          child: const Text(
-                            'BYOK Active',
-                            style: TextStyle(
-                              color: ColorPalette.emeraldAccent,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: colors.success,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                'BYOK',
+                                style: TextStyle(
+                                  color: colors.textSecondary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     IconButton(
-                      icon: const Icon(Icons.edit_note, color: ColorPalette.textSecondary),
+                      icon: Icon(Icons.edit_note, color: colors.textSecondary),
                       tooltip: 'New Conversation',
                       onPressed: () {
                         HapticUtils.lightImpact();
@@ -195,7 +214,7 @@ class _MainChatScreenState extends State<MainChatScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(chatState.errorMessage!),
-                            backgroundColor: ColorPalette.error,
+                            backgroundColor: colors.error,
                           ),
                         );
                         context.read<ChatBloc>().add(ClearChatError());
@@ -213,20 +232,32 @@ class _MainChatScreenState extends State<MainChatScreen> {
                         if (isQuotaExceeded) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            color: ColorPalette.warning.withValues(alpha: 0.15),
+                            decoration: BoxDecoration(
+                              color: colors.surface,
+                              border: Border(
+                                bottom: BorderSide(color: colors.border),
+                              ),
+                            ),
                             child: Row(
                               children: [
-                                const Icon(Icons.warning_amber_rounded, color: ColorPalette.warning, size: 20),
+                                Icon(Icons.warning_amber_rounded, color: colors.warning, size: 20),
                                 const SizedBox(width: 10),
-                                const Expanded(
+                                Expanded(
                                   child: Text(
-                                    'Shared cloud quota exceeded. Set your custom BYOK key to continue uninterrupted.',
-                                    style: TextStyle(color: ColorPalette.warning, fontSize: 12),
+                                    'Shared cloud quota reached. Add your BYOK key in settings to continue.',
+                                    style: TextStyle(color: colors.textSecondary, fontSize: 12),
                                   ),
                                 ),
                                 TextButton(
                                   onPressed: () => context.push('/settings'),
-                                  child: const Text('Add BYOK', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                  child: Text(
+                                    'Add Key',
+                                    style: TextStyle(
+                                      color: colors.textPrimary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -238,7 +269,7 @@ class _MainChatScreenState extends State<MainChatScreen> {
                           child: Stack(
                             children: [
                               messages.isEmpty
-                                  ? _buildEmptyState()
+                                  ? _buildEmptyState(colors)
                                   : ListView.builder(
                                       controller: _scrollController,
                                       padding: const EdgeInsets.only(top: 12, bottom: 20),
@@ -281,10 +312,11 @@ class _MainChatScreenState extends State<MainChatScreen> {
                                   right: 16,
                                   bottom: 16,
                                   child: FloatingActionButton.small(
-                                    backgroundColor: ColorPalette.elevatedSurface,
-                                    foregroundColor: ColorPalette.textPrimary,
-                                    shape: const CircleBorder(
-                                      side: BorderSide(color: ColorPalette.subtleBorder),
+                                    backgroundColor: colors.card,
+                                    foregroundColor: colors.textPrimary,
+                                    elevation: 2,
+                                    shape: CircleBorder(
+                                      side: BorderSide(color: colors.border),
                                     ),
                                     onPressed: _scrollToBottom,
                                     child: const Icon(Icons.keyboard_arrow_down, size: 20),
@@ -320,37 +352,36 @@ class _MainChatScreenState extends State<MainChatScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AppColors colors) {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Solid minimalist icon badge - Zero gradients
             Container(
-              width: 56,
-              height: 56,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [ColorPalette.indigoAccent, ColorPalette.violetAccent],
-                ),
+                color: colors.primary,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+              child: Icon(Icons.auto_awesome, color: colors.onPrimary, size: 26),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'How can Nexora assist you today?',
               style: TextStyle(
-                color: ColorPalette.textPrimary,
+                color: colors.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Autonomous multi-agent workflows, deep research, code generation, and RAG document grounding.',
-              style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13),
+            Text(
+              'Autonomous multi-agent workflows, research, code synthesis, and document grounding.',
+              style: TextStyle(color: colors.textSecondary, fontSize: 13),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -361,10 +392,10 @@ class _MainChatScreenState extends State<MainChatScreen> {
               runSpacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                _buildPromptChip('Analyze latest AI breakthroughs'),
-                _buildPromptChip('Write a clean Dart 3 BLoC pattern'),
-                _buildPromptChip('Derive the Euler-Lagrange equation'),
-                _buildPromptChip('Summarize video transcript into notes'),
+                _buildPromptChip(colors, 'Analyze latest AI breakthroughs'),
+                _buildPromptChip(colors, 'Write a clean Dart 3 BLoC pattern'),
+                _buildPromptChip(colors, 'Derive the Euler-Lagrange equation'),
+                _buildPromptChip(colors, 'Summarize video transcript into notes'),
               ],
             ),
           ],
@@ -373,16 +404,16 @@ class _MainChatScreenState extends State<MainChatScreen> {
     );
   }
 
-  Widget _buildPromptChip(String prompt) {
+  Widget _buildPromptChip(AppColors colors, String prompt) {
     return ActionChip(
-      backgroundColor: ColorPalette.elevatedSurface,
+      backgroundColor: colors.card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: ColorPalette.subtleBorder),
+        side: BorderSide(color: colors.border),
       ),
       label: Text(
         prompt,
-        style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 12),
+        style: TextStyle(color: colors.textPrimary, fontSize: 12),
       ),
       onPressed: () {
         HapticUtils.lightImpact();

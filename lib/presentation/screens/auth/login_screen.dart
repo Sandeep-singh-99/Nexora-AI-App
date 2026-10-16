@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/theme/color_palette.dart';
+import '../../../app/theme/app_colors.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/auth/auth_event.dart';
 import '../../blocs/auth/auth_state.dart';
@@ -44,8 +44,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: ColorPalette.obsidianBackground,
+      backgroundColor: colors.background,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
@@ -54,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: ColorPalette.error,
+                backgroundColor: colors.error,
               ),
             );
           }
@@ -72,41 +74,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Nexora AI Logo & Title
+                      // Nexora AI Logo & Title - Solid, clean, no gradients
                       Center(
                         child: Container(
-                          width: 64,
-                          height: 64,
+                          width: 56,
+                          height: 56,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [ColorPalette.indigoAccent, ColorPalette.violetAccent],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: ColorPalette.indigoAccent.withValues(alpha: 0.35),
-                                blurRadius: 24,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
+                            color: colors.primary,
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.auto_awesome,
-                            color: Colors.white,
-                            size: 32,
+                            color: colors.onPrimary,
+                            size: 28,
                           ),
                         ),
                       ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
                       const SizedBox(height: 20),
 
-                      const Center(
+                      Center(
                         child: Text(
                           'Nexora AI',
                           style: TextStyle(
-                            color: ColorPalette.textPrimary,
-                            fontSize: 28,
+                            color: colors.textPrimary,
+                            fontSize: 26,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
                           ),
@@ -114,11 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ).animate().fadeIn(delay: 100.ms),
 
                       const SizedBox(height: 6),
-                      const Center(
+                      Center(
                         child: Text(
                           'Autonomous Multi-Agent Intelligence Client',
                           style: TextStyle(
-                            color: ColorPalette.textSecondary,
+                            color: colors.textSecondary,
                             fontSize: 13,
                           ),
                         ),
@@ -126,18 +117,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 32),
 
-                      // Login Card
+                      // Login Card - Solid card, no blurry glass/neon
                       GlassContainer(
                         padding: const EdgeInsets.all(24),
+                        backgroundColor: colors.card,
+                        borderColor: colors.border,
                         child: Form(
                           key: _formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Text(
+                              Text(
                                 'Sign In',
                                 style: TextStyle(
-                                  color: ColorPalette.textPrimary,
+                                  color: colors.textPrimary,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -149,9 +142,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText: 'Email Address',
                                 hintText: 'name@example.com',
                                 keyboardType: TextInputType.emailAddress,
-                                prefixIcon: const Icon(
+                                prefixIcon: Icon(
                                   Icons.email_outlined,
-                                  color: ColorPalette.textMuted,
+                                  color: colors.textMuted,
                                   size: 20,
                                 ),
                                 validator: (value) {
@@ -171,15 +164,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText: 'Password',
                                 hintText: '••••••••',
                                 obscureText: _obscurePassword,
-                                prefixIcon: const Icon(
+                                prefixIcon: Icon(
                                   Icons.lock_outline,
-                                  color: ColorPalette.textMuted,
+                                  color: colors.textMuted,
                                   size: 20,
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                    color: ColorPalette.textMuted,
+                                    color: colors.textMuted,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -211,10 +204,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       builder: (_) => const ForgotPasswordDialog(),
                                     );
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     'Forgot password?',
                                     style: TextStyle(
-                                      color: ColorPalette.indigoAccent,
+                                      color: colors.textSecondary,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -241,16 +234,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             "Don't have an account?",
-                            style: TextStyle(color: ColorPalette.textSecondary, fontSize: 13),
+                            style: TextStyle(color: colors.textSecondary, fontSize: 13),
                           ),
                           TextButton(
                             onPressed: () => context.go('/register'),
-                            child: const Text(
+                            child: Text(
                               'Create one',
                               style: TextStyle(
-                                color: ColorPalette.indigoAccent,
+                                color: colors.textPrimary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),

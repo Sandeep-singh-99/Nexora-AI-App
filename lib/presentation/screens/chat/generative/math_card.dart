@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/haptic_utils.dart';
 
 class MathCard extends StatelessWidget {
@@ -16,27 +16,29 @@ class MathCard extends StatelessWidget {
     this.steps = const [],
   });
 
-  void _copyLatex(BuildContext context) {
+  void _copyLatex(BuildContext context, AppColors colors) {
     HapticUtils.heavyImpact();
     Clipboard.setData(ClipboardData(text: latex));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('LaTeX expression copied to clipboard!'),
-        backgroundColor: ColorPalette.emeraldAccent,
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: const Text('LaTeX expression copied to clipboard!'),
+        backgroundColor: colors.cardHover,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,16 +51,17 @@ class MathCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: ColorPalette.emeraldAccent.withValues(alpha: 0.15),
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colors.border),
                     ),
-                    child: const Icon(Icons.functions, size: 18, color: ColorPalette.emeraldAccent),
+                    child: Icon(Icons.functions, size: 18, color: colors.textSecondary),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     title ?? 'Mathematical Equation',
-                    style: const TextStyle(
-                      color: ColorPalette.textPrimary,
+                    style: TextStyle(
+                      color: colors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -66,9 +69,9 @@ class MathCard extends StatelessWidget {
                 ],
               ),
               IconButton(
-                icon: const Icon(Icons.copy, size: 18, color: ColorPalette.textSecondary),
+                icon: Icon(Icons.copy, size: 18, color: colors.textSecondary),
                 tooltip: 'Copy LaTeX',
-                onPressed: () => _copyLatex(context),
+                onPressed: () => _copyLatex(context, colors),
               ),
             ],
           ),
@@ -78,24 +81,24 @@ class MathCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             decoration: BoxDecoration(
-              color: ColorPalette.obsidianBackground,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: ColorPalette.subtleBorder),
+              border: Border.all(color: colors.border),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Center(
                 child: Math.tex(
                   latex,
-                  textStyle: const TextStyle(
+                  textStyle: TextStyle(
                     fontSize: 18,
-                    color: ColorPalette.textPrimary,
+                    color: colors.textPrimary,
                   ),
                   onErrorFallback: (err) => Text(
                     latex,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'monospace',
-                      color: ColorPalette.textSecondary,
+                      color: colors.textSecondary,
                     ),
                   ),
                 ),
@@ -106,10 +109,10 @@ class MathCard extends StatelessWidget {
           // Derivation Steps
           if (steps.isNotEmpty) ...[
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Derivation & Explanation:',
               style: TextStyle(
-                color: ColorPalette.textSecondary,
+                color: colors.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -123,8 +126,8 @@ class MathCard extends StatelessWidget {
                   children: [
                     Text(
                       '${entry.key + 1}. ',
-                      style: const TextStyle(
-                        color: ColorPalette.emeraldAccent,
+                      style: TextStyle(
+                        color: colors.textPrimary,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -132,8 +135,8 @@ class MathCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         entry.value,
-                        style: const TextStyle(
-                          color: ColorPalette.textPrimary,
+                        style: TextStyle(
+                          color: colors.textPrimary,
                           fontSize: 12,
                           height: 1.4,
                         ),

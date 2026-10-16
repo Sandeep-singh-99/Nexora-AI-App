@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../../../app/theme/color_palette.dart';
+import '../../../../app/theme/app_colors.dart';
 
 class ChartCard extends StatefulWidget {
   final String title;
@@ -33,13 +33,15 @@ class _ChartCardState extends State<ChartCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorPalette.elevatedSurface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.subtleBorder),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,8 +51,8 @@ class _ChartCardState extends State<ChartCard> {
             children: [
               Text(
                 widget.title,
-                style: const TextStyle(
-                  color: ColorPalette.textPrimary,
+                style: TextStyle(
+                  color: colors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -61,7 +63,7 @@ class _ChartCardState extends State<ChartCard> {
                     icon: Icon(
                       Icons.bar_chart,
                       size: 20,
-                      color: _isBarChart ? ColorPalette.indigoAccent : ColorPalette.textMuted,
+                      color: _isBarChart ? colors.primary : colors.textMuted,
                     ),
                     onPressed: () => setState(() => _isBarChart = true),
                   ),
@@ -69,7 +71,7 @@ class _ChartCardState extends State<ChartCard> {
                     icon: Icon(
                       Icons.show_chart,
                       size: 20,
-                      color: !_isBarChart ? ColorPalette.indigoAccent : ColorPalette.textMuted,
+                      color: !_isBarChart ? colors.primary : colors.textMuted,
                     ),
                     onPressed: () => setState(() => _isBarChart = false),
                   ),
@@ -80,14 +82,14 @@ class _ChartCardState extends State<ChartCard> {
           const SizedBox(height: 16),
           SizedBox(
             height: 180,
-            child: _isBarChart ? _buildBarChart() : _buildLineChart(),
+            child: _isBarChart ? _buildBarChart(colors) : _buildLineChart(colors),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBarChart() {
+  Widget _buildBarChart(AppColors colors) {
     return BarChart(
       BarChartData(
         barGroups: widget.values.asMap().entries.map((entry) {
@@ -96,7 +98,7 @@ class _ChartCardState extends State<ChartCard> {
             barRods: [
               BarChartRodData(
                 toY: entry.value,
-                color: ColorPalette.indigoAccent,
+                color: colors.primary,
                 width: 14,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
               ),
@@ -114,7 +116,7 @@ class _ChartCardState extends State<ChartCard> {
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
                       widget.labels[index],
-                      style: const TextStyle(color: ColorPalette.textMuted, fontSize: 10),
+                      style: TextStyle(color: colors.textMuted, fontSize: 10),
                     ),
                   );
                 }
@@ -134,7 +136,7 @@ class _ChartCardState extends State<ChartCard> {
     );
   }
 
-  Widget _buildLineChart() {
+  Widget _buildLineChart(AppColors colors) {
     return LineChart(
       LineChartData(
         lineBarsData: [
@@ -143,12 +145,12 @@ class _ChartCardState extends State<ChartCard> {
               return FlSpot(e.key.toDouble(), e.value);
             }).toList(),
             isCurved: true,
-            color: ColorPalette.indigoAccent,
-            barWidth: 3,
+            color: colors.primary,
+            barWidth: 2.5,
             dotData: const FlDotData(show: true),
             belowBarData: BarAreaData(
               show: true,
-              color: ColorPalette.indigoAccent.withValues(alpha: 0.15),
+              color: colors.primary.withValues(alpha: 0.1),
             ),
           ),
         ],
@@ -163,7 +165,7 @@ class _ChartCardState extends State<ChartCard> {
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
                       widget.labels[index],
-                      style: const TextStyle(color: ColorPalette.textMuted, fontSize: 10),
+                      style: TextStyle(color: colors.textMuted, fontSize: 10),
                     ),
                   );
                 }
