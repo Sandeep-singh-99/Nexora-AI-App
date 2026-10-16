@@ -182,9 +182,17 @@ class SseStreamReader {
         return SseTokenEvent(json['token'] as String? ?? json['content'] as String? ?? '');
 
       case 'ui':
+        final uiObj = (json['ui'] is Map<String, dynamic>)
+            ? (json['ui'] as Map<String, dynamic>)
+            : json;
         return SseUiEvent(
-          type: json['ui_type'] as String? ?? json['name'] as String? ?? 'card',
-          props: (json['props'] as Map<String, dynamic>?) ?? {},
+          type: uiObj['type'] as String? ??
+              json['ui_type'] as String? ??
+              json['name'] as String? ??
+              'card',
+          props: (uiObj['props'] as Map<String, dynamic>?) ??
+              (json['props'] as Map<String, dynamic>?) ??
+              {},
         );
 
       case 'custom_key_meta':
