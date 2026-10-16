@@ -20,6 +20,7 @@ class DioClient {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Client-Type': 'mobile',
       },
       validateStatus: (status) => status != null && status < 500,
     );

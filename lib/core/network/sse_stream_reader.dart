@@ -151,7 +151,7 @@ class SseStreamReader {
 
     if (type == null) {
       if (json.containsKey('token') || json.containsKey('content')) {
-        return SseTokenEvent((json['token'] ?? json['content']) as String);
+        return SseTokenEvent((json['token'] ?? json['content'])?.toString() ?? '');
       }
       return SseUnknownEvent(jsonEncode(json));
     }

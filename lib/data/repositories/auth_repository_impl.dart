@@ -1,3 +1,4 @@
+import '../../core/errors/exceptions.dart';
 import '../../core/security/secure_storage_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -13,9 +14,12 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> login({required String email, required String password}) async {
     final res = await _remoteDataSource.login(email: email, password: password);
-    final accessToken = res['access_token'] as String;
-    final refreshToken = res['refresh_token'] as String;
-    final csrfToken = res['csrf_token'] as String?;
+    final accessToken = (res['access_token'] ?? res['token'])?.toString();
+    if (accessToken == null || accessToken.isEmpty) {
+      throw AuthException('Authentication token missing from response');
+    }
+    final refreshToken = (res['refresh_token'] ?? res['refreshToken'])?.toString();
+    final csrfToken = (res['csrf_token'] ?? res['csrfToken'])?.toString();
 
     await _storageService.saveTokens(
       accessToken: accessToken,
@@ -23,12 +27,20 @@ class AuthRepositoryImpl implements AuthRepository {
       csrfToken: csrfToken,
     );
 
-    if (res['user'] != null) {
-      return UserModel.fromJson(res['user'] as Map<String, dynamic>);
+    if (res['user'] != null && res['user'] is Map) {
+      return UserModel.fromJson(Map<String, dynamic>.from(res['user'] as Map));
     }
 
-    return await getCurrentUser() ??
-        UserModel(id: 'me', email: email, username: email.split('@').first);
+    final currentUser = await getCurrentUser();
+    if (currentUser != null) {
+      return currentUser;
+    }
+
+    return UserModel(
+      id: 'me',
+      email: email,
+      username: email.contains('@') ? email.split('@').first : email,
+    );
   }
 
   @override
@@ -42,11 +54,11 @@ class AuthRepositoryImpl implements AuthRepository {
       username: username,
       password: password,
     );
-    final accessToken = res['access_token'] as String?;
-    final refreshToken = res['refresh_token'] as String?;
-    final csrfToken = res['csrf_token'] as String?;
+    final accessToken = (res['access_token'] ?? res['token'])?.toString();
+    final refreshToken = (res['refresh_token'] ?? res['refreshToken'])?.toString();
+    final csrfToken = (res['csrf_token'] ?? res['csrfToken'])?.toString();
 
-    if (accessToken != null && refreshToken != null) {
+    if (accessToken != null && accessToken.isNotEmpty) {
       await _storageService.saveTokens(
         accessToken: accessToken,
         refreshToken: refreshToken,
@@ -54,8 +66,8 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     }
 
-    if (res['user'] != null) {
-      return UserModel.fromJson(res['user'] as Map<String, dynamic>);
+    if (res['user'] != null && res['user'] is Map) {
+      return UserModel.fromJson(Map<String, dynamic>.from(res['user'] as Map));
     }
 
     return UserModel(id: 'registered', email: email, username: username);

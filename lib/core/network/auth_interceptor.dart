@@ -14,6 +14,9 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // Ensure mobile client identifier header is present
+    options.headers['X-Client-Type'] = 'mobile';
+
     // Skip auth header for login, register, and refresh
     final isAuthEndpoint = options.path.contains(ApiConstants.login) ||
         options.path.contains(ApiConstants.register) ||
@@ -58,28 +61,30 @@ class AuthInterceptor extends QueuedInterceptor {
             data: {'refresh_token': refreshToken},
           );
 
-          if (response.statusCode == 200) {
-            final data = response.data;
-            final newAccessToken = data['access_token'] as String;
+          if (response.statusCode == 200 && response.data != null) {
+            final data = response.data is Map ? (response.data as Map) : <String, dynamic>{};
+            final newAccessToken = (data['access_token'] ?? data['token']) as String?;
             final newRefreshToken = (data['refresh_token'] as String?) ?? refreshToken;
             final newCsrf = (data['csrf_token'] as String?) ??
                 response.headers.value('x-csrf-token');
 
-            await _storageService.saveTokens(
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
-              csrfToken: newCsrf,
-            );
+            if (newAccessToken != null && newAccessToken.isNotEmpty) {
+              await _storageService.saveTokens(
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+                csrfToken: newCsrf,
+              );
 
-            // Retry original request with new token
-            final originalOptions = err.requestOptions;
-            originalOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-            if (newCsrf != null) {
-              originalOptions.headers['X-CSRF-Token'] = newCsrf;
+              // Retry original request with new token
+              final originalOptions = err.requestOptions;
+              originalOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+              if (newCsrf != null) {
+                originalOptions.headers['X-CSRF-Token'] = newCsrf;
+              }
+
+              final retryResponse = await _refreshDio.fetch(originalOptions);
+              return handler.resolve(retryResponse);
             }
-
-            final retryResponse = await _refreshDio.fetch(originalOptions);
-            return handler.resolve(retryResponse);
           }
         } catch (_) {
           // Token refresh failed, clear credentials

@@ -11,12 +11,14 @@ class SecureStorageService {
   // Auth tokens
   Future<void> saveTokens({
     required String accessToken,
-    required String refreshToken,
+    String? refreshToken,
     String? csrfToken,
   }) async {
     await _secureStorage.write(key: StorageConstants.accessToken, value: accessToken);
-    await _secureStorage.write(key: StorageConstants.refreshToken, value: refreshToken);
-    if (csrfToken != null) {
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      await _secureStorage.write(key: StorageConstants.refreshToken, value: refreshToken);
+    }
+    if (csrfToken != null && csrfToken.isNotEmpty) {
       await _secureStorage.write(key: StorageConstants.csrfToken, value: csrfToken);
     }
   }

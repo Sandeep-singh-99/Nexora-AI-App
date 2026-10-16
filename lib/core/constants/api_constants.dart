@@ -2,8 +2,8 @@ class ApiConstants {
   ApiConstants._();
 
   // Default base URL - configurable via SettingsBloc / SecureStorage
-  static const String defaultBaseUrl = 'http://10.0.2.2:8000/api/v1'; // Android emulator default
-  static const String defaultLocalhostUrl = 'http://localhost:8000/api/v1';
+  static const String defaultBaseUrl = 'https://nexora-server-dev.onrender.com/api/v1'; // Android emulator default
+  static const String defaultLocalhostUrl = 'https://nexora-server-dev.onrender.com/api/v1';
 
   // Auth endpoints
   static const String register = '/auth/register';

@@ -11,13 +11,24 @@ class UserModel extends UserEntity {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final email = json['email']?.toString() ?? '';
+    final rawUsername = json['username']?.toString() ?? json['name']?.toString();
+    final username = (rawUsername != null && rawUsername.isNotEmpty)
+        ? rawUsername
+        : (email.contains('@') ? email.split('@').first : 'User');
+
+    DateTime? parsedCreatedAt;
+    if (json['created_at'] != null) {
+      parsedCreatedAt = DateTime.tryParse(json['created_at'].toString());
+    }
+
     return UserModel(
-      id: json['id'] as String? ?? json['user_id'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      username: json['username'] as String? ?? json['name'] as String? ?? '',
-      avatarUrl: json['avatar_url'] as String?,
-      isEmailVerified: json['is_email_verified'] as bool? ?? false,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
+      id: json['id']?.toString() ?? json['user_id']?.toString() ?? '',
+      email: email,
+      username: username,
+      avatarUrl: json['avatar_url']?.toString(),
+      isEmailVerified: json['is_email_verified'] == true,
+      createdAt: parsedCreatedAt,
     );
   }
 

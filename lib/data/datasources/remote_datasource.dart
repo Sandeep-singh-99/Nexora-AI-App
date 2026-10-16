@@ -28,7 +28,10 @@ class RemoteDataSource {
         data: {'email': email, 'password': password},
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data as Map<String, dynamic>;
+        if (response.data is Map) {
+          return Map<String, dynamic>.from(response.data as Map);
+        }
+        return <String, dynamic>{};
       }
       throw AuthException(response.data?['detail'] ?? 'Login failed', statusCode: response.statusCode);
     } on DioException catch (e) {
@@ -47,7 +50,10 @@ class RemoteDataSource {
         data: {'email': email, 'username': username, 'password': password},
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data as Map<String, dynamic>;
+        if (response.data is Map) {
+          return Map<String, dynamic>.from(response.data as Map);
+        }
+        return <String, dynamic>{};
       }
       throw AuthException(response.data?['detail'] ?? 'Registration failed', statusCode: response.statusCode);
     } on DioException catch (e) {
@@ -63,8 +69,11 @@ class RemoteDataSource {
 
   Future<UserModel> getMe() async {
     final response = await _dioClient.get(ApiConstants.me);
-    if (response.statusCode == 200) {
-      return UserModel.fromJson(response.data as Map<String, dynamic>);
+    if (response.statusCode == 200 && response.data != null) {
+      final map = response.data is Map
+          ? Map<String, dynamic>.from(response.data as Map)
+          : <String, dynamic>{};
+      return UserModel.fromJson(map);
     }
     throw AuthException('Failed to fetch user profile');
   }
