@@ -22,10 +22,14 @@ class DioClient {
         'Content-Type': 'application/json',
         'X-Client-Type': 'mobile',
       },
-      validateStatus: (status) => status != null && status < 500,
+      validateStatus: (status) => status != null && status < 500 && status != 401,
     );
 
-    _refreshDio = Dio(baseOptions);
+    _refreshDio = Dio(
+      baseOptions.copyWith(
+        validateStatus: (status) => status != null && status >= 200 && status < 300,
+      ),
+    );
     dio = Dio(baseOptions);
 
     dio.interceptors.add(

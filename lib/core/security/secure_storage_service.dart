@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_constants.dart';
@@ -20,6 +21,20 @@ class SecureStorageService {
     }
     if (csrfToken != null && csrfToken.isNotEmpty) {
       await _secureStorage.write(key: StorageConstants.csrfToken, value: csrfToken);
+    }
+  }
+
+  Future<void> saveUserProfile(Map<String, dynamic> userJson) async {
+    await _prefs.setString(StorageConstants.userProfile, jsonEncode(userJson));
+  }
+
+  Map<String, dynamic>? getUserProfile() {
+    final str = _prefs.getString(StorageConstants.userProfile);
+    if (str == null || str.isEmpty) return null;
+    try {
+      return jsonDecode(str) as Map<String, dynamic>?;
+    } catch (_) {
+      return null;
     }
   }
 

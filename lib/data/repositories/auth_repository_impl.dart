@@ -27,20 +27,22 @@ class AuthRepositoryImpl implements AuthRepository {
       csrfToken: csrfToken,
     );
 
+    final UserEntity user;
     if (res['user'] != null && res['user'] is Map) {
-      return UserModel.fromJson(Map<String, dynamic>.from(res['user'] as Map));
+      user = UserModel.fromJson(Map<String, dynamic>.from(res['user'] as Map));
+    } else {
+      user = UserModel(
+        id: 'me',
+        email: email,
+        username: email.contains('@') ? email.split('@').first : email,
+      );
     }
 
-    final currentUser = await getCurrentUser();
-    if (currentUser != null) {
-      return currentUser;
+    if (user is UserModel) {
+      await _storageService.saveUserProfile(user.toJson());
     }
 
-    return UserModel(
-      id: 'me',
-      email: email,
-      username: email.contains('@') ? email.split('@').first : email,
-    );
+    return user;
   }
 
   @override
@@ -66,11 +68,18 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     }
 
+    final UserEntity user;
     if (res['user'] != null && res['user'] is Map) {
-      return UserModel.fromJson(Map<String, dynamic>.from(res['user'] as Map));
+      user = UserModel.fromJson(Map<String, dynamic>.from(res['user'] as Map));
+    } else {
+      user = UserModel(id: 'registered', email: email, username: username);
     }
 
-    return UserModel(id: 'registered', email: email, username: username);
+    if (user is UserModel) {
+      await _storageService.saveUserProfile(user.toJson());
+    }
+
+    return user;
   }
 
   @override
@@ -81,12 +90,36 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity?> getCurrentUser() async {
-    try {
-      final token = await _storageService.getAccessToken();
-      if (token == null || token.isEmpty) return null;
-      return await _remoteDataSource.getMe();
-    } catch (_) {
+    final cachedJson = _storageService.getUserProfile();
+    final cachedUser = cachedJson != null ? UserModel.fromJson(cachedJson) : null;
+
+    final token = await _storageService.getAccessToken();
+    final refreshToken = await _storageService.getRefreshToken();
+    final hasAnyToken = (token != null && token.isNotEmpty) || (refreshToken != null && refreshToken.isNotEmpty);
+
+    if (!hasAnyToken) {
       return null;
+    }
+
+    try {
+      final fresh = await _remoteDataSource.getMe();
+      await _storageService.saveUserProfile(fresh.toJson());
+      return fresh;
+    } catch (_) {
+      // Check if tokens were explicitly cleared by unrecoverable 401 refresh failure
+      final stillHasToken = await _storageService.getAccessToken();
+      final stillHasRefreshToken = await _storageService.getRefreshToken();
+      if ((stillHasToken == null || stillHasToken.isEmpty) &&
+          (stillHasRefreshToken == null || stillHasRefreshToken.isEmpty)) {
+        return null;
+      }
+
+      // If network drop, timeout, or server cold start, fall back to cached user profile
+      if (cachedUser != null) {
+        return cachedUser;
+      }
+
+      return const UserModel(id: 'me', email: 'user@nexora.ai', username: 'User');
     }
   }
 
@@ -103,6 +136,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<bool> isAuthenticated() async {
     final token = await _storageService.getAccessToken();
-    return token != null && token.isNotEmpty;
+    final refreshToken = await _storageService.getRefreshToken();
+    return (token != null && token.isNotEmpty) || (refreshToken != null && refreshToken.isNotEmpty);
   }
 }

@@ -61,7 +61,8 @@ class AppRouter {
 
       // 2. Fallback to secure storage tokens (e.g. cold start before AuthBloc finishes check)
       final token = await _storageService.getAccessToken();
-      final hasToken = token != null && token.isNotEmpty;
+      final refreshToken = await _storageService.getRefreshToken();
+      final hasToken = (token != null && token.isNotEmpty) || (refreshToken != null && refreshToken.isNotEmpty);
 
       if (!hasToken && !isAuthRoute) {
         return '/login';

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../data/models/user_model.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -29,10 +30,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         emit(Authenticated(user));
       } else {
-        emit(Unauthenticated());
+        final stillAuth = await _authRepository.isAuthenticated();
+        if (stillAuth) {
+          emit(const Authenticated(UserModel(id: 'me', email: 'user@nexora.ai', username: 'User')));
+        } else {
+          emit(Unauthenticated());
+        }
       }
     } catch (_) {
-      emit(Unauthenticated());
+      final stillAuth = await _authRepository.isAuthenticated();
+      if (stillAuth) {
+        emit(const Authenticated(UserModel(id: 'me', email: 'user@nexora.ai', username: 'User')));
+      } else {
+        emit(Unauthenticated());
+      }
     }
   }
 
