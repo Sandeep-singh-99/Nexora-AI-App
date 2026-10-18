@@ -8,7 +8,13 @@ abstract class ConversationEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadConversations extends ConversationEvent {}
+class LoadConversations extends ConversationEvent {
+  final bool autoSelectLatest;
+  const LoadConversations({this.autoSelectLatest = false});
+
+  @override
+  List<Object?> get props => [autoSelectLatest];
+}
 
 class ResetToNewChat extends ConversationEvent {}
 

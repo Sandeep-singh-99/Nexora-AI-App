@@ -177,6 +177,23 @@ void main() {
       expect((chatBloc.state as ChatLoaded).messages, isEmpty);
     });
 
+    test('ConversationBloc LoadConversations defaults to new chat section (selectedConversationId: null) on app launch', () async {
+      mockConvRepo.conversations.add(ConversationEntity(
+        id: 'conv-1',
+        title: 'Initial',
+        model: 'groq',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ));
+
+      convBloc.add(const LoadConversations());
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(convBloc.state, isA<ConversationLoaded>());
+      expect((convBloc.state as ConversationLoaded).allConversations.length, 1);
+      expect((convBloc.state as ConversationLoaded).selectedConversationId, isNull);
+    });
+
     test('ConversationBloc ResetToNewChat sets selectedConversationId to null', () async {
       mockConvRepo.conversations.add(ConversationEntity(
         id: 'conv-1',
@@ -186,7 +203,7 @@ void main() {
         updatedAt: DateTime.now(),
       ));
 
-      convBloc.add(LoadConversations());
+      convBloc.add(const LoadConversations(autoSelectLatest: true));
       await Future.delayed(const Duration(milliseconds: 50));
 
       expect(convBloc.state, isA<ConversationLoaded>());

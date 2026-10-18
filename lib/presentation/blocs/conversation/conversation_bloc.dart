@@ -34,7 +34,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       final list = await _conversationRepository.getConversations();
       final targetSelectedId = (currentSelectedId != null && list.any((c) => c.id == currentSelectedId))
           ? currentSelectedId
-          : (list.isNotEmpty ? list.first.id : null);
+          : (event.autoSelectLatest && list.isNotEmpty ? list.first.id : null);
 
       emit(ConversationLoaded(
         allConversations: list,
@@ -129,12 +129,13 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         await _conversationRepository.deleteConversation(event.id);
         final list = s.allConversations.where((c) => c.id != event.id).toList();
         final newSelectedId = s.selectedConversationId == event.id
-            ? (list.isNotEmpty ? list.first.id : null)
+            ? null
             : s.selectedConversationId;
 
         emit(s.copyWith(
           allConversations: list,
           selectedConversationId: newSelectedId,
+          clearSelectedId: newSelectedId == null,
         ));
       } catch (_) {}
     }
